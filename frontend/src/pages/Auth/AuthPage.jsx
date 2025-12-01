@@ -1,0 +1,253 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
+import { Github } from 'lucide-react';
+import PasswordInput from '../../components/common/PasswordInput';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
+import logo from '../../assets/logo.png';
+
+const AuthPage = () => {
+  const { t } = useLanguage();
+  const { login, register, loginWithGoogle, loginWithGithub, isLoading } =
+    useAuth();
+  const navigate = useNavigate();
+
+  const [isLoginView, setIsLoginView] = useState(true);
+  const [confirmDialog, setConfirmDialog] = useState(null);
+
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('male');
+  const [errors, setErrors] = useState({});
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    const result = await login(username, password);
+    if (result.success) {
+      navigate('/home');
+    } else {
+      setConfirmDialog({
+        type: 'alert',
+        title: t('loginFailed'),
+        message: result.message || t('invalidCredentials'),
+        onConfirm: () => setConfirmDialog(null),
+      });
+    }
+  };
+
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    if (password.length < 6) {
+      // --- SỬA: Dùng key 'minLength' ---
+      setErrors({ password: t('minLength', { min: 6 }) });
+      return;
+    }
+
+    const result = await register({
+      username,
+      password,
+      name: fullName,
+      age,
+      gender,
+    });
+
+    if (result.success) {
+      navigate('/home');
+    } else {
+      if (result.errors) {
+        const firstError = Object.values(result.errors)[0][0];
+        setConfirmDialog({
+          type: 'alert',
+          title: t('registerFailed'), // --- SỬA: Key chuẩn
+          message: firstError || result.message,
+          onConfirm: () => setConfirmDialog(null),
+        });
+      } else {
+        setConfirmDialog({
+          type: 'alert',
+          title: t('registerFailed'), // --- SỬA: Key chuẩn
+          message: result.message,
+          onConfirm: () => setConfirmDialog(null),
+        });
+      }
+    }
+  };
+
+  return (
+    <div className='auth-page'>
+      <div className='auth-container'>
+        <div className='auth-header'>
+          <div className='logo'>
+            <img src={logo} alt='Logo' className='logo-img' />
+            <span className='logo-text'>Vietnote</span>
+          </div>
+          <h2>{isLoginView ? t('loginTitle') : t('registerTitle')}</h2>
+          <p>{isLoginView ? t('loginDesc') : t('registerDesc')}</p>
+        </div>
+
+        {isLoginView ? (
+          <form onSubmit={handleLoginSubmit}>
+            <div className='form-group'>
+              <label className='form-label'>{t('username')}</label>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className='form-input'
+                placeholder='user1'
+                required
+              />
+            </div>
+            <div className='form-group'>
+              <label className='form-label'>{t('password')}</label>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className='form-input'
+              />
+              <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
+                <Link
+                  to='/forgot-password'
+                  style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--accent)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  {t('forgotPassword')}
+                </Link>
+              </div>
+            </div>
+            <div className='form-action-center'>
+              <button
+                type='submit'
+                className='btn btn-primary btn-large w-full'
+                disabled={isLoading}
+              >
+                {isLoading ? t('isSending') : t('login')}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleRegisterSubmit}>
+            <div className='form-group'>
+              <label className='form-label'>{t('fullName')}</label>
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className='form-input'
+                required
+              />
+            </div>
+            <div className='form-group'>
+              <label className='form-label'>{t('username')}</label>
+              <input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className='form-input'
+                required
+              />
+            </div>
+            <div className='form-group'>
+              <label className='form-label'>{t('password')}</label>
+              <PasswordInput
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`form-input ${errors.password ? 'error' : ''}`}
+              />
+              {errors.password && (
+                <span className='form-error'>{errors.password}</span>
+              )}
+            </div>
+            <div className='form-group'>
+              <label className='form-label'>{t('age')}</label>
+              <input
+                type='number'
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                className='form-input'
+              />
+            </div>
+            <div className='form-group'>
+              <label className='form-label'>{t('gender')}</label>
+              <div className='gender-selector'>
+                <button
+                  type='button'
+                  className={`gender-option ${
+                    gender === 'male' ? 'active' : ''
+                  }`}
+                  onClick={() => setGender('male')}
+                >
+                  {t('male')}
+                </button>
+                <button
+                  type='button'
+                  className={`gender-option ${
+                    gender === 'female' ? 'active' : ''
+                  }`}
+                  onClick={() => setGender('female')}
+                >
+                  {t('female')}
+                </button>
+                <button
+                  type='button'
+                  className={`gender-option ${
+                    gender === 'other' ? 'active' : ''
+                  }`}
+                  onClick={() => setGender('other')}
+                >
+                  {t('other')}
+                </button>
+              </div>
+            </div>
+            <div className='form-action-center'>
+              <button
+                type='submit'
+                className='btn btn-primary btn-large w-full'
+                disabled={isLoading}
+              >
+                {isLoading ? t('isSending') : t('register')}
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className='auth-toggle'>
+          {isLoginView ? t('dontHaveAccount') : t('alreadyHaveAccount')}{' '}
+          <button
+            onClick={() => {
+              setIsLoginView(!isLoginView);
+              setErrors({});
+            }}
+          >
+            {isLoginView ? t('register') : t('login')}
+          </button>
+        </div>
+
+        <div className='auth-divider'>
+          <span>{t('or')}</span>
+        </div>
+
+        <div className='social-login-btns'>
+          <button
+            className='btn btn-secondary btn-full'
+            onClick={loginWithGoogle}
+          >
+            {t('loginWithGoogle')}
+          </button>
+          <button
+            className='btn btn-secondary btn-full'
+            onClick={loginWithGithub}
+          >
+            <Github size={18} /> {t('loginWithGithub')}
+          </button>
+        </div>
+      </div>
+      {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
+    </div>
+  );
+};
+
+export default AuthPage;

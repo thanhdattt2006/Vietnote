@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vietnote</title>
+
+    <script>
+      (function () {
+        // 1. Lấy theme từ localStorage
+        const savedTheme = localStorage.getItem('vietnote-theme');
+
+        // 2. Nếu chưa có, check setting của hệ điều hành (Optional - cho xịn)
+        const systemDark = window.matchMedia(
+          '(prefers-color-scheme: dark)',
+        ).matches;
+
+        // 3. Quyết định theme
+        const theme = savedTheme ? savedTheme : systemDark ? 'dark' : 'light';
+
+        // 4. Gán ngay vào thẻ <html> để CSS ăn liền lập tức
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
+  </head>
+  <body class="preload">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
