@@ -1,12 +1,13 @@
-// src/components/common/LoadingOverlay.jsx
 import React from 'react';
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-const LoadingOverlay = ({ isVisible }) => {
+// Thêm prop style
+const LoadingOverlay = ({ isVisible, style }) => {
   if (!isVisible) return null;
 
   return (
-    <div className='loading-overlay'>
+    // Merge style mặc định với style truyền vào
+    <div className='loading-overlay' style={style}>
       <ProgressSpinner
         style={{ width: '50px', height: '50px' }}
         strokeWidth='4'

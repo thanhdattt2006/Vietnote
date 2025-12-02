@@ -81,7 +81,7 @@ const AuthPage = () => {
       <div className='auth-container'>
         <div className='auth-header'>
           <div className='logo'>
-            <img src={logo} alt='Logo' className='logo-img' />
+            <img src={logo} alt='Vietnote' className='logo-img' />
             <span className='logo-text'>Vietnote</span>
           </div>
           <h2>{isLoginView ? t('loginTitle') : t('registerTitle')}</h2>
@@ -96,7 +96,6 @@ const AuthPage = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className='form-input'
-                placeholder='user1'
                 required
               />
             </div>
@@ -115,6 +114,7 @@ const AuthPage = () => {
                     color: 'var(--accent)',
                     textDecoration: 'none',
                   }}
+                  tabIndex={-1}
                 >
                   {t('forgotPassword')}
                 </Link>

@@ -23,7 +23,7 @@ const TopHeader = ({ onToggle, onMobileToggle }) => {
         </button>
 
         <div className='logo'>
-          <img src={logo} alt='Logo' className='logo-img' />
+          <img src={logo} alt='Vietnote' className='logo-img' />
           <span className='logo-text'>Vietnote</span>
         </div>
       </div>

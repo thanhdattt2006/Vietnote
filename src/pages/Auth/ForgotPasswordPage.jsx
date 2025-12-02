@@ -6,7 +6,7 @@ import authApi from '../../api/authApi';
 import PasswordInput from '../../components/common/PasswordInput';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import logo from '../../assets/logo.png';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Loader2 } from 'lucide-react';
 
 const ForgotPasswordPage = () => {
   const { t } = useLanguage();
@@ -165,7 +165,14 @@ const ForgotPasswordPage = () => {
               className='btn btn-primary w-full'
               disabled={isLoading}
             >
-              {isLoading ? t('isSending') : t('sendOTP')}
+              {isLoading ? (
+                <>
+                  <Loader2 className='btn-spinner' size={20} />
+                  <span>{t('isSending')}</span>
+                </>
+              ) : (
+                t('sendOTP')
+              )}
             </button>
             <div className='auth-toggle'>
               <Link
