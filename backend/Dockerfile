@@ -1,47 +1,45 @@
-# Dùng base image Alpine PHP-FPM (tối ưu, nhẹ nhàng)
+# Dùng base image Alpine PHP-FPM
 FROM php:8.2-fpm-alpine
 
-# Cài đặt các Dependencies cần thiết
-RUN apk update && apk add \
+# 1. Cài đặt Nginx và các thư viện hệ thống cần thiết
+RUN apk update && apk add --no-cache \
     nginx \
     git \
     curl \
     mysql-client \
-    imagemagick \
+    libpng-dev \
     libxml2-dev \
-    # Các extension PHP cần thiết cho Laravel
-    php82-dom \
-    php82-pdo \
-    php82-pdo_mysql \
-    php82-session \
-    php82-json \
-    php82-mbstring \
-    php82-tokenizer \
-    php82-fileinfo \
-    php82-xml \
-    php82-gd \
-    php82-exif \
-    php82-opcache \
-    && rm -rf /var/cache/apk/*
+    libzip-dev \
+    oniguruma-dev
 
-# Cài đặt Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# 2. Cài đặt PHP Extensions (Chuẩn Docker)
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd opcache
 
-# Thiết lập thư mục làm việc và User
+# 3. Cài đặt Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 4. Thiết lập thư mục làm việc
 WORKDIR /var/www/html
-RUN chown -R www-data:www-data /var/www/html
 
-# Sao chép code Laravel vào container
-COPY . /var/www/html
-
-# Chạy lệnh Build (Composer Install)
-RUN composer install --optimize-autoloader --no-dev
-
-# Cấu hình Nginx để trỏ về public/index.php
+# 5. Copy file cấu hình Nginx (Đường dẫn chuẩn của Alpine)
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 
-# Exposed Port
+# 6. Copy code vào container
+COPY . .
+
+# 7. Cài đặt Dependencies
+RUN composer install --optimize-autoloader --no-dev --no-scripts
+
+# 8. Phân quyền (Quan trọng)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 9. Setup script khởi chạy
+COPY docker/startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
+
+# 10. Mở port
 EXPOSE 8080
 
-# Chạy PHP-FPM và Nginx khi container khởi động
-CMD sh -c "php-fpm && nginx -g 'daemon off;'"
+# 11. Chạy script startup thay vì CMD dài dòng
+CMD ["/usr/local/bin/startup.sh"]
