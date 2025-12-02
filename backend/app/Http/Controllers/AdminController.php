@@ -19,8 +19,6 @@ class AdminController extends Controller
   public function getStats()
   {
     try {
-      // Nhớ key 'admin_dashboard_stats', lưu trong 10 phút (600 giây)
-      // Lần đầu nó sẽ tính toán, các lần sau nó lấy luôn kết quả đã lưu, siêu nhanh
       $stats = Cache::remember('admin_dashboard_stats', 600, function () {
 
         // --- TOÀN BỘ LOGIC TÍNH TOÁN CŨ NHÉT VÀO ĐÂY ---
