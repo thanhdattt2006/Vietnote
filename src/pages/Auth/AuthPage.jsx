@@ -31,7 +31,7 @@ const AuthPage = () => {
     } else {
       setConfirmDialog({
         type: 'alert',
-        title: t('loginFailed'),
+        title: t('loginFailed'), // --- SỬA: Key chuẩn
         message: result.message || t('invalidCredentials'),
         onConfirm: () => setConfirmDialog(null),
       });
