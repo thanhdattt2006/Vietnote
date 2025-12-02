@@ -129,6 +129,7 @@ const translations = {
       'This action cannot be undone. This will permanently delete your account and all associated data.',
     typeToConfirm: 'Please type "{match}" to confirm.',
     confirmDelete: 'I understand, delete this account',
+    loginFailed: 'Login Failed',
   },
   vi: {
     home: 'Trang chủ',
