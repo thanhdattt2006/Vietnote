@@ -1,45 +1,33 @@
-# Dùng base image Alpine PHP-FPM
+# 1. Dùng Image Alpine cho nhẹ (khoảng 50MB)
 FROM php:8.2-fpm-alpine
 
-# 1. Cài đặt Nginx và các thư viện hệ thống cần thiết
-RUN apk update && apk add --no-cache \
-    nginx \
-    git \
-    curl \
-    mysql-client \
-    libpng-dev \
-    libxml2-dev \
-    libzip-dev \
-    oniguruma-dev
+# 2. Copy script cài extension "thần thánh" (Không cần compile)
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-# 2. Cài đặt PHP Extensions (Chuẩn Docker)
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd opcache
+# 3. Cài các thư viện cần thiết cho Laravel chỉ trong 1 dòng
+# Bạn có thể thêm các extension khác vào cuối dòng nếu cần
+RUN install-php-extensions pdo_mysql bcmath zip intl opcache gd
 
-# 3. Cài đặt Composer
+# 4. Cài Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 4. Thiết lập thư mục làm việc
+# 5. Thiết lập thư mục làm việc
 WORKDIR /var/www/html
 
-# 5. Copy file cấu hình Nginx (Đường dẫn chuẩn của Alpine)
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+# 6. COPY file định nghĩa thư viện trước (TỐI ƯU CACHE)
+# Bước này giúp Docker bỏ qua việc cài lại vendor nếu bạn chỉ sửa code mà không thêm thư viện mới
+COPY composer.json composer.lock ./
 
-# 6. Copy code vào container
+# 7. Cài thư viện (dùng cờ --no-dev để bỏ qua thư viện test cho nhẹ)
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+
+# 8. Giờ mới copy toàn bộ code vào
 COPY . .
 
-# 7. Cài đặt Dependencies
-RUN composer install --optimize-autoloader --no-dev --no-scripts
+# 9. Tối ưu autoloader và phân quyền
+RUN composer dump-autoload --optimize && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 8. Phân quyền (Quan trọng)
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
-# 9. Setup script khởi chạy
-COPY docker/startup.sh /usr/local/bin/startup.sh
-RUN chmod +x /usr/local/bin/startup.sh
-
-# 10. Mở port
-EXPOSE 8080
-
-# 11. Chạy script startup thay vì CMD dài dòng
-CMD ["/usr/local/bin/startup.sh"]
+# 10. Mở port và chạy
+EXPOSE 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
