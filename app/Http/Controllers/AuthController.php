@@ -223,7 +223,7 @@ class AuthController extends Controller
       $user->tokens()->delete();
       $token = $user->createToken('social-login')->plainTextToken;
 
-      $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
+      $frontendUrl = env('FRONTEND_URL', 'https://vietnote.vercel.app');
       return redirect($frontendUrl . '/auth/callback?token=' . $token . '&user=' . urlencode(json_encode($user)));
     } catch (Exception $e) {
       return $this->debugError($e);
