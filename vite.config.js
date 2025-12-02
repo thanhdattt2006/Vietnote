@@ -11,7 +11,7 @@ export default defineConfig({
       // Hễ React gặp đường dẫn bắt đầu bằng /storage (ví dụ: <img src="/storage/abc.jpg">)
       // Nó sẽ tự động chuyển hướng request đó sang http://localhost:8000/storage/abc.jpg
       '/storage': {
-        target: 'http://localhost:8000',
+        target: 'https://vietnote.onrender.com',
         changeOrigin: true,
       },
     },
