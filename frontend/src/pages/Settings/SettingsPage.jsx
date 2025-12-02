@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Sun, Moon } from 'lucide-react';
 import authApi from '../../api/authApi';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import LoadingOverlay from '../../components/common/LoadingOverlay';
+import ChangePasswordModal from '../../components/common/ChangePasswordModal';
+import DeleteAccountModal from '../../components/common/DeleteAccountModal'; // <--- Import mới
 
-// --- FIX 1: ĐƯA COMPONENT CON RA NGOÀI ĐỂ TRÁNH MẤT FOCUS ---
+// Component con
 const ProfileField = ({ label, children }) => (
   <div className='form-group'>
     <label className='form-label'>{label}</label>
@@ -15,11 +19,18 @@ const ProfileField = ({ label, children }) => (
 );
 
 const SettingsPage = () => {
-  const { user } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Modal States
+  const [showChangePassModal, setShowChangePassModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false); // <--- State mới
+
   const [formData, setFormData] = useState({
     name: user?.name || '',
     age: user?.age || '',
@@ -27,34 +38,46 @@ const SettingsPage = () => {
   });
   const [confirmDialog, setConfirmDialog] = useState(null);
 
-  // --- FIX 2: HÀM CHE EMAIL (Giữ đầu, che 5 ký tự cuối trước @) ---
   const maskEmail = (email) => {
     if (!email) return '';
     const parts = email.split('@');
-    if (parts.length < 2) return email; // Không phải email chuẩn
-
+    if (parts.length < 2) return email;
     const localPart = parts[0];
     const domain = parts[1];
+    if (localPart.length <= 5) return '*****@' + domain;
+    return `${localPart.slice(0, -5)}*****@${domain}`;
+  };
 
-    // Nếu tên ngắn quá (dưới 5 ký tự) thì che hết luôn cho an toàn
-    if (localPart.length <= 5) {
-      return '*****@' + domain;
-    }
+  const handleThemeSwitch = async (targetTheme) => {
+    if (theme === targetTheme) return;
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    toggleTheme();
+    setIsLoading(false);
+  };
 
-    // Cắt bỏ 5 ký tự cuối, thay bằng *****
-    const visiblePart = localPart.slice(0, -5);
-    return `${visiblePart}*****@${domain}`;
+  const handleLangSwitch = async (targetLang) => {
+    if (language === targetLang) return;
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    setLanguage(targetLang);
+    setIsLoading(false);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      await authApi.updateProfile(formData);
+      const response = await authApi.updateProfile(formData);
+      if (response && response.user) {
+        setUser(response.user);
+        localStorage.setItem('vietnote-user', JSON.stringify(response.user));
+      }
       setIsEditing(false);
       setConfirmDialog({
         type: 'success',
         title: t('success'),
-        message: t('updateProfileSuccess'), // Đã sửa key cho khớp
+        message: t('updateProfileSuccess'),
         onConfirm: () => setConfirmDialog(null),
       });
     } catch (e) {
@@ -64,11 +87,44 @@ const SettingsPage = () => {
         message: t('updateProfileFailed'),
         onConfirm: () => setConfirmDialog(null),
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Hàm xử lý sau khi xóa thành công (truyền vào Modal)
+  const onAccountDeleted = async () => {
+    setShowDeleteAccountModal(false);
+
+    // Tận dụng luôn cái state isLoading có sẵn của trang Settings
+    setIsLoading(true);
+
+    // Fake delay
+    await new Promise((resolve) => setTimeout(resolve, 800));
+
+    logout();
+    navigate('/login');
+  };
+
   return (
-    <div className='page settings-page'>
+    // 👇 FIX LOADING: Đặt relative-container ở div to nhất của page
+    <div
+      className='page settings-page relative-container'
+      style={{ minHeight: '100vh' }}
+    >
+      {/* Loading này sẽ che toàn bộ trang Settings (cả header) */}
+      <LoadingOverlay
+        isVisible={isLoading}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 9999, // Đảm bảo đè lên tất cả mọi thứ
+        }}
+      />
+
       <div className='page-header'>
         <div>
           <h1>{t('settings')}</h1>
@@ -77,7 +133,7 @@ const SettingsPage = () => {
       </div>
 
       <div className='settings-container'>
-        {/* --- PHẦN GIAO DIỆN --- */}
+        {/* --- Theme Section --- */}
         <div className='setting-section'>
           <div className='setting-header'>
             <h3 className='setting-title'>{t('appearance')}</h3>
@@ -86,20 +142,20 @@ const SettingsPage = () => {
           <div className='theme-selector'>
             <button
               className={`theme-option ${theme === 'light' ? 'active' : ''}`}
-              onClick={() => theme !== 'light' && toggleTheme()}
+              onClick={() => handleThemeSwitch('light')}
             >
               <Sun size={20} /> {t('lightMode')}
             </button>
             <button
               className={`theme-option ${theme === 'dark' ? 'active' : ''}`}
-              onClick={() => theme !== 'dark' && toggleTheme()}
+              onClick={() => handleThemeSwitch('dark')}
             >
               <Moon size={20} /> {t('darkMode')}
             </button>
           </div>
         </div>
 
-        {/* --- PHẦN NGÔN NGỮ --- */}
+        {/* --- Language Section --- */}
         <div className='setting-section'>
           <div className='setting-header'>
             <h3 className='setting-title'>{t('language')}</h3>
@@ -108,20 +164,20 @@ const SettingsPage = () => {
           <div className='language-selector'>
             <button
               className={`language-option ${language === 'en' ? 'active' : ''}`}
-              onClick={() => setLanguage('en')}
+              onClick={() => handleLangSwitch('en')}
             >
               <span className='flag'>🇬🇧</span> English
             </button>
             <button
               className={`language-option ${language === 'vi' ? 'active' : ''}`}
-              onClick={() => setLanguage('vi')}
+              onClick={() => handleLangSwitch('vi')}
             >
               <span className='flag'>🇻🇳</span> Tiếng Việt
             </button>
           </div>
         </div>
 
-        {/* --- PHẦN THÔNG TIN CÁ NHÂN --- */}
+        {/* --- Profile Section --- */}
         <div className='setting-section'>
           <div className='setting-header-profile'>
             <div className='setting-header'>
@@ -135,6 +191,7 @@ const SettingsPage = () => {
                   ? document.getElementById('profile-form').requestSubmit()
                   : setIsEditing(true)
               }
+              disabled={isLoading}
             >
               {isEditing ? t('save') : t('edit')}
             </button>
@@ -156,7 +213,6 @@ const SettingsPage = () => {
               <input
                 className='form-input'
                 disabled
-                // --- SỬA: ÁP DỤNG MASK EMAIL Ở ĐÂY ---
                 value={maskEmail(user?.username)}
                 style={{ opacity: 0.7, fontFamily: 'monospace' }}
               />
@@ -216,18 +272,54 @@ const SettingsPage = () => {
           </form>
         </div>
 
+        {/* --- Danger Zone --- */}
         <div className='setting-section danger-zone'>
           <div className='setting-header'>
             <h3 className='setting-title'>{t('dangerZone')}</h3>
             <p className='setting-description'>{t('dangerZoneDesc')}</p>
           </div>
           <div className='danger-zone-content'>
-            <button className='btn btn-secondary'>{t('changePassword')}</button>
-            <button className='btn btn-danger'>{t('deleteAccount')}</button>
+            <button
+              className='btn btn-secondary'
+              onClick={() => setShowChangePassModal(true)}
+            >
+              {t('changePassword')}
+            </button>
+
+            {/* Mở Modal Xóa Tài Khoản */}
+            <button
+              className='btn btn-danger'
+              onClick={() => setShowDeleteAccountModal(true)}
+            >
+              {t('deleteAccount')}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* --- MODALS --- */}
       {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
+
+      <ChangePasswordModal
+        isOpen={showChangePassModal}
+        onClose={() => setShowChangePassModal(false)}
+        onSuccess={() =>
+          setConfirmDialog({
+            type: 'success',
+            title: t('success'),
+            message: t('passwordChanged'), // Key mới thêm
+            onConfirm: () => setConfirmDialog(null),
+          })
+        }
+      />
+
+      {/* Modal Xóa Tài Khoản */}
+      <DeleteAccountModal
+        isOpen={showDeleteAccountModal}
+        onClose={() => setShowDeleteAccountModal(false)}
+        username={user?.username} // Truyền username để user nhập theo
+        onSuccess={onAccountDeleted}
+      />
     </div>
   );
 };

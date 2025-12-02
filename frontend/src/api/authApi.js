@@ -38,6 +38,12 @@ const authApi = {
     // data: { name, age, gender, ... }
     return axiosClient.put('/account/update', data);
   },
+
+  // Đổi mật khẩu (Cần pass cũ và mới)
+  changePassword: (data) => axiosClient.post('/account/change-password', data),
+
+  // Xóa tài khoản
+  deleteAccount: () => axiosClient.delete('/account/delete'),
 };
 
 export default authApi;

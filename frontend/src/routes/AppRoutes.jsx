@@ -11,7 +11,10 @@ import TrashPage from '../pages/Trash/TrashPage';
 import FeedbackPage from '../pages/Feedback/FeedbackPage';
 import SettingsPage from '../pages/Settings/SettingsPage';
 import NotFoundPage from '../pages/NotFoundPage';
-import ResetPasswordPage from '../pages/Auth/ResetPasswordPage';
+import ResetPasswordPage from '../components/common/ChangePasswordModal';
+import AdminLayout from '../layouts/AdminLayout';
+import AdminLoginPage from '../pages/Admin/AdminLoginPage';
+import DashboardPage from '../pages/Admin/DashboardPage';
 
 const AppRoutes = () => {
   return (
@@ -29,6 +32,13 @@ const AppRoutes = () => {
         <Route path='/trash' element={<TrashPage />} />
         <Route path='/feedback' element={<FeedbackPage />} />
         <Route path='/settings' element={<SettingsPage />} />
+      </Route>
+
+      <Route path='/admin/login' element={<AdminLoginPage />} />
+
+      <Route path='/admin' element={<AdminLayout />}>
+        <Route index element={<Navigate to='dashboard' replace />} />
+        <Route path='dashboard' element={<DashboardPage />} />
       </Route>
 
       <Route path='*' element={<NotFoundPage />} />
