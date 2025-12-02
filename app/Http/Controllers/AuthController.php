@@ -16,8 +16,6 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
-  // Đăng ký
-  // Đăng ký
   public function register(Request $request)
   {
     try {
@@ -225,12 +223,6 @@ class AuthController extends Controller
       $user->tokens()->delete();
       $token = $user->createToken('social-login')->plainTextToken;
 
-      // return response()->json([
-      //   'message' => 'Login success',
-      //   'provider' => $provider,
-      //   'token' => $token,
-      //   'user' => $user
-      // ]);
       $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
       return redirect($frontendUrl . '/auth/callback?token=' . $token . '&user=' . urlencode(json_encode($user)));
     } catch (Exception $e) {
@@ -269,6 +261,57 @@ class AuthController extends Controller
         'message' => 'Cập nhật hồ sơ thành công',
         'user' => $user // Trả về user mới để Frontend cập nhật lại state
       ]);
+
+    } catch (Exception $e) {
+      return $this->debugError($e);
+    }
+  }
+
+  public function changePassword(Request $request)
+  {
+    try {
+      $request->validate([
+        'current_password' => 'required',
+        'new_password' => 'required|min:6|different:current_password', // Mới phải khác cũ
+      ]);
+
+      $user = $request->user();
+
+      // Kiểm tra mật khẩu cũ có đúng không
+      if (!Hash::check($request->current_password, $user->password)) {
+        return response()->json(['message' => 'Mật khẩu hiện tại không đúng'], 400);
+      }
+
+      // Cập nhật mật khẩu mới
+      $user->password = Hash::make($request->new_password);
+      $user->save();
+
+      // (Tuỳ chọn) Xóa các token khác để đăng xuất thiết bị lạ, giữ lại thiết bị này
+      // $user->tokens()->where('id', '!=', $user->currentAccessToken()->id)->delete();
+
+      return response()->json(['message' => 'Đổi mật khẩu thành công']);
+
+    } catch (Exception $e) {
+      return $this->debugError($e);
+    }
+  }
+
+  public function deleteAccount(Request $request)
+  {
+    try {
+      $user = $request->user();
+
+      // 1. Xóa Token đăng nhập
+      $user->tokens()->delete();
+
+      // 2. Xóa dữ liệu liên quan (Nếu Database chưa set ON DELETE CASCADE)
+      // Ví dụ: Xóa ảnh, xóa note... (Tùy logic DB của ông)
+      // DB::table('Note')->where('ownerId', $user->id)->delete(); 
+
+      // 3. Xóa User
+      $user->delete();
+
+      return response()->json(['message' => 'Tài khoản đã bị xóa vĩnh viễn']);
 
     } catch (Exception $e) {
       return $this->debugError($e);

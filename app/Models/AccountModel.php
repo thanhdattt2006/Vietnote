@@ -20,6 +20,7 @@ class AccountModel extends Authenticatable // ← Đổi extends
     'name',
     'age',
     'gender',
+    'role',
     'createdAt',
   ];
 

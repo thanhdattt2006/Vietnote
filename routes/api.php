@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -48,6 +49,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // --- User & Profile ---
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/account/update', [AuthController::class, 'updateProfile']); // fix lỗi Settings page
+    Route::post('/account/change-password', [AuthController::class, 'changePassword']);
+    Route::delete('/account/delete', [AuthController::class, 'deleteAccount']);
 
     // --- Notes (CRUD Cơ bản) ---
     Route::get('/notes', [NoteController::class, 'index']);          // Lấy danh sách
@@ -69,4 +72,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notes/{id}/images', [NoteImageController::class, 'store']);
     Route::delete('/images/{id}', [NoteImageController::class, 'destroy']);
 
+});
+
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/stats', [AdminController::class, 'getStats']); // API Thống kê
+    Route::get('/users', [AdminController::class, 'getUsers']); // Danh sách user
+    Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/feedbacks', [AdminController::class, 'getFeedbacks']); // Danh sách Feedback
+    Route::post('/broadcast', [AdminController::class, 'sendBroadcast']); // Gửi mail
+    Route::delete('/feedbacks/{id}', [AdminController::class, 'deleteFeedback']); // Xóa Feedback
 });
