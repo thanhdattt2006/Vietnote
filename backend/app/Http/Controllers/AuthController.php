@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\AccountModel;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -107,11 +108,12 @@ class AuthController extends Controller
 
       // Gửi Email (Đồng bộ - vì đây là OTP, cần user nhận liền)
       try {
+        // Mail::to()->send() chạy đồng bộ
         Mail::to($request->username)->send(new ResetPasswordOTP($token));
       } catch (\Exception $e) {
-        Log::error("Failed to send OTP to {$request->username}: " . $e->getMessage());
-        // Trả về lỗi 500 nếu mail quan trọng như OTP thất bại
-        return response()->json(['message' => 'Lỗi gửi email xác nhận. Vui lòng kiểm tra lại cấu hình Resend.'], 500);
+        // Nếu lỗi Resend, trả về lỗi 500 rõ ràng
+        Log::error("RESEND FAILED: OTP to {$request->username}: " . $e->getMessage());
+        return response()->json(['message' => 'Lỗi kết nối Resend. Vui lòng kiểm tra API Key/Domain.'], 500);
       }
 
       return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn']);
