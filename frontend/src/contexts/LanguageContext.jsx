@@ -129,6 +129,7 @@ const translations = {
       'This action cannot be undone. This will permanently delete your account and all associated data.',
     typeToConfirm: 'Please type "{match}" to confirm.',
     confirmDelete: 'I understand, delete this account',
+    confirmLabel: 'Confirm',
   },
   vi: {
     home: 'Trang chủ',
@@ -258,6 +259,7 @@ const translations = {
       'Hành động này không thể hoàn tác. Việc này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan.',
     typeToConfirm: 'Vui lòng gõ "{match}" để xác nhận.',
     confirmDelete: 'Tôi hiểu, xóa tài khoản này',
+    confirmLabel: 'Xác nhận',
   },
 };
 
