@@ -110,7 +110,7 @@ class AuthController extends Controller
         // Gửi OTP vào hàng đợi, delay 30 giây
         Mail::to($request->username)
           ->queue(
-            (new ResetPasswordOTP($token))->delay(now()->addSeconds(30)) // <--- Sửa ở đây
+            (new ResetPasswordOTP($token))->delay(now()->addSeconds(5)) // <--- Sửa ở đây
           );
 
       } catch (\Exception $e) {
@@ -119,7 +119,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Lỗi hệ thống mail. Vui lòng thử lại sau.'], 500);
       }
 
-      return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn (sẽ đến sau 30 giây)']);
+      return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn (sẽ đến sau 5 giây)']);
 
     } catch (Exception $e) {
       return $this->debugError($e);
@@ -230,7 +230,7 @@ class AuthController extends Controller
       $user->tokens()->delete();
       $token = $user->createToken('social-login')->plainTextToken;
 
-      $frontendUrl = env('FRONTEND_URL', 'https://vietnote.vercel.app');
+      $frontendUrl = env('FRONTEND_URL', 'http://localhost:3000');
       return redirect($frontendUrl . '/auth/callback?token=' . $token . '&user=' . urlencode(json_encode($user)));
     } catch (Exception $e) {
       return $this->debugError($e);
