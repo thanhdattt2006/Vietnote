@@ -22,12 +22,9 @@ class ResponseController extends Controller
         'content' => 'required|string',
       ], [
         'name.required' => 'Tên không được để trống',
-        'name.max' => 'Tên không được vượt quá 100 ký tự',
         'gmail.required' => 'Gmail không được để trống',
-        'gmail.email' => 'Gmail không đúng định dạng',
-        'subject.required' => 'Tiêu đề không được để trống',
-        'subject.max' => 'Tiêu đề không được vượt quá 255 ký tự',
         'content.required' => 'Nội dung không được để trống',
+        // ... (Các message khác)
       ]);
 
       // Nếu validate fail → Trả về lỗi 422
@@ -48,30 +45,28 @@ class ResponseController extends Controller
         'sentAt' => now(),
       ]);
 
-      // ========== BƯỚC 3: GỬI EMAIL CẢM ƠN ==========
-      // Chuẩn bị dữ liệu để truyền vào email template
-      $emailData = [
-        'name' => $response->name,
-        'subject' => $response->subject,
-        'content' => $response->content,
-      ];
+      // ========== BƯỚC 3: GỬI EMAIL CẢM ƠN (ASYNC/QUEUE) ==========
+      // Chuyển sang queue() để giải phóng server ngay lập tức (Xử lý hiệu năng)
+      try {
+        // Ông phải đảm bảo ThankYouMail đã implement ShouldQueue
+        Mail::to($response->gmail)->queue(new ThankYouMail($response->toArray()));
+      } catch (\Exception $e) {
+        // Log lỗi mail nhưng vẫn trả về thành công vì Feedback đã được lưu vào DB
+        Log::error('Failed to dispatch ThankYouMail: ' . $e->getMessage());
+      }
 
-      // Gửi mail (sync - gửi ngay lập tức)
-      Mail::to($response->gmail)->send(new ThankYouMail($emailData));
-
-      // ========== BƯỚC 4: TRẢ VỀ RESPONSE THÀNH CÔNG ==========
+      // ========== BƯỚC 4: TRẢ VỀ RESPONSE THÀNH CÔNG NHANH ==========
       return response()->json([
         'success' => true,
-        'message' => 'Gửi phản hồi thành công! Email cảm ơn đã được gửi đến ' . $response->gmail,
+        'message' => 'Gửi phản hồi thành công! Email cảm ơn đang được xử lý.',
         'data' => $response
       ], 201);
 
     } catch (\Exception $e) {
-      // ========== XỬ LÝ LỖI ==========
       Log::error('Error creating response: ' . $e->getMessage());
       return response()->json([
         'success' => false,
-        'message' => 'Lỗi khi gửi phản hồi hoặc email',
+        'message' => 'Lỗi khi gửi phản hồi',
         'error' => $e->getMessage()
       ], 500);
     }

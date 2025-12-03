@@ -131,9 +131,21 @@ class AdminController extends Controller
   {
     try {
       $request->validate(['subject' => 'required', 'content' => 'required']);
-      // ... (Logic gửi mail cũ của ông)
-      // Demo nhanh để đỡ lỗi nếu chưa config mail
-      return response()->json(['message' => "Giả lập gửi mail thành công (Cần config SMTP để gửi thật)"]);
+
+      $users = AccountModel::select('username')->whereNotNull('username')->get();
+      $count = 0;
+
+      foreach ($users as $user) {
+        if (filter_var($user->username, FILTER_VALIDATE_EMAIL)) {
+          // 👇 Dùng Mail::to()->queue() hoặc Job::dispatch() để đảm bảo chạy Async
+          Mail::to($user->username)->queue(new BroadcastMail($request->subject, $request->content));
+          $count++;
+        }
+      }
+
+      // Trả về thành công ngay lập tức
+      return response()->json(['message' => "Đã gửi $count email vào hàng đợi. Render Worker sẽ xử lý."]);
+
     } catch (Exception $e) {
       return response()->json(['error' => $e->getMessage()], 500);
     }
