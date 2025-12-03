@@ -48,11 +48,10 @@ class ResponseController extends Controller
       // ========== BƯỚC 3: GỬI EMAIL CẢM ƠN (ASYNC/QUEUE) ==========
       // Chuyển sang queue() để giải phóng server ngay lập tức (Xử lý hiệu năng)
       try {
-        // Ông phải đảm bảo ThankYouMail đã implement ShouldQueue
+        // Chuyển sang queue()
         Mail::to($response->gmail)->queue(new ThankYouMail($response->toArray()));
       } catch (\Exception $e) {
-        // Log lỗi mail nhưng vẫn trả về thành công vì Feedback đã được lưu vào DB
-        Log::error('Failed to dispatch ThankYouMail: ' . $e->getMessage());
+        Log::error('Failed to dispatch ThankYouMail to queue: ' . $e->getMessage());
       }
 
       // ========== BƯỚC 4: TRẢ VỀ RESPONSE THÀNH CÔNG NHANH ==========

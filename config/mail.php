@@ -49,6 +49,8 @@ return [
             'name' => env('MAIL_FROM_NAME', 'Example'),
         ],
 
+
+
         // Loại bỏ mục 'resend' bị lặp
 
         'ses' => [
