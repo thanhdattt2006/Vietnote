@@ -5,15 +5,14 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3000, // Frontend chạy port 3000
-    // proxy: {
-    //   // MA THUẬT Ở ĐÂY:
-    //   // Hễ React gặp đường dẫn bắt đầu bằng /storage (ví dụ: <img src="/storage/abc.jpg">)
-    //   // Nó sẽ tự động chuyển hướng request đó sang http://localhost:8000/storage/abc.jpg
-    //   '/storage': {
-    //     target: 'https://vietnote.onrender.com/',
-    //     changeOrigin: true,
-    //   },
-    // },
+    port: 3000,
+    proxy: {
+      '/storage': {
+        // Khi request bắt đầu bằng /storage
+        target: 'http://localhost:8000', // Trỏ đến Backend Laravel đang chạy
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/storage/, '/storage'), // Đảm bảo đường dẫn đúng
+      },
+    },
   },
 });
