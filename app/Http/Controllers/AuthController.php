@@ -92,25 +92,27 @@ class AuthController extends Controller
   public function forgotPassword(Request $request)
   {
     try {
-      // Validate email tồn tại
-      $user = AccountModel::where('username', $request->username)->first(); // username là email
+      $user = AccountModel::where('username', $request->username)->first();
       if (!$user) {
         return response()->json(['message' => 'Không tìm thấy tài khoản với email này'], 404);
       }
 
-      // Tạo mã OTP 6 số ngẫu nhiên
       $token = rand(100000, 999999);
-
-      // Lưu vào bảng password_resets (Xóa token cũ nếu có trước)
       DB::table('password_reset_tokens')->where('email', $request->username)->delete();
       DB::table('password_reset_tokens')->insert([
         'email' => $request->username,
-        'token' => $token, // Lưu thẳng token (hoặc hash nếu muốn bảo mật cực cao, ở đây lưu thô cho dễ check)
+        'token' => $token,
         'created_at' => Carbon::now()
       ]);
 
-      // Gửi Email
-      Mail::to($request->username)->send(new ResetPasswordOTP($token));
+      // Gửi Email (Đồng bộ - vì đây là OTP, cần user nhận liền)
+      try {
+        Mail::to($request->username)->send(new ResetPasswordOTP($token));
+      } catch (\Exception $e) {
+        Log::error("Failed to send OTP to {$request->username}: " . $e->getMessage());
+        // Trả về lỗi 500 nếu mail quan trọng như OTP thất bại
+        return response()->json(['message' => 'Lỗi gửi email xác nhận. Vui lòng kiểm tra lại cấu hình Resend.'], 500);
+      }
 
       return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn']);
 

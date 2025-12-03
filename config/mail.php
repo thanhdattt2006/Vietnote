@@ -37,21 +37,13 @@ return [
 
     'mailers' => [
 
-        'smtp' => [
-            'transport' => 'smtp',
-            'scheme' => env('MAIL_SCHEME'),
-            'url' => env('MAIL_URL'),
-            'host' => env('MAIL_HOST', '127.0.0.1'),
-            'port' => env('MAIL_PORT', 2525),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
-        ],
+        // Loại bỏ cấu hình 'smtp' cũ
 
         'resend' => [
             'transport' => 'resend',
         ],
+
+        // Loại bỏ mục 'resend' bị lặp
 
         'ses' => [
             'transport' => 'ses',
@@ -61,12 +53,8 @@ return [
             'transport' => 'postmark',
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
             // 'client' => [
-            //     'timeout' => 5,
+            //      'timeout' => 5,
             // ],
-        ],
-
-        'resend' => [
-            'transport' => 'resend',
         ],
 
         'sendmail' => [
@@ -86,7 +74,7 @@ return [
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
-                'smtp',
+                'resend', // Dùng resend thay cho smtp cũ
                 'log',
             ],
             'retry_after' => 60,
