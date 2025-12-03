@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/storage/(.*)",
+      "destination": "https://vietnote.onrender.com/storage/$1"
     }
   ]
 }
