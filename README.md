@@ -16,6 +16,7 @@ Vietnote là một ứng dụng ghi chú hiện đại được xây dựng trê
 
 | Thành phần | Công nghệ | Chi tiết và Mục đích |
 | :--- | :--- | :--- |
+| **Xác thực Ngoài** |	**Laravel Socialite** |	**Xử lý đăng nhập bằng tài khoản Google và GitHub.** |
 | **Backend API** | **Laravel 11, Sanctum** | Cung cấp các RESTful API bảo mật. Sử dụng kiến trúc Repository/Service. |
 | **Frontend UI** | **ReactJS, Vite** | Giao diện người dùng hiện đại, tốc độ cao (SPA). |
 | **Database** | **MySQL (Aiven/Render)** | Cơ sở dữ liệu chính. |
