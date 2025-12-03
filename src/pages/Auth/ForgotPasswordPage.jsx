@@ -250,7 +250,7 @@ const ForgotPasswordPage = () => {
               className='btn btn-primary w-full'
               disabled={isLoading}
             >
-              {isLoading ? t('isSending') : t('sendOTP')}
+              {isLoading ? t('isSending') : t('confirmLabel')}
             </button>
             <div className='auth-toggle'>
               <button type='button' onClick={() => setStep(2)}>
