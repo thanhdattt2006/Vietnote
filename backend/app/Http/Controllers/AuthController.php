@@ -106,17 +106,20 @@ class AuthController extends Controller
         'created_at' => Carbon::now()
       ]);
 
-      // Gửi Email (Đồng bộ - vì đây là OTP, cần user nhận liền)
       try {
-        // Mail::to()->send() chạy đồng bộ
-        Mail::to($request->username)->send(new ResetPasswordOTP($token));
+        // Gửi OTP vào hàng đợi, delay 30 giây
+        Mail::to($request->username)
+          ->queue(
+            (new ResetPasswordOTP($token))->delay(now()->addSeconds(30)) // <--- Sửa ở đây
+          );
+
       } catch (\Exception $e) {
-        // Nếu lỗi Resend, trả về lỗi 500 rõ ràng
-        Log::error("RESEND FAILED: OTP to {$request->username}: " . $e->getMessage());
-        return response()->json(['message' => 'Lỗi kết nối Resend. Vui lòng kiểm tra API Key/Domain.'], 500);
+        // Log lỗi nếu thất bại khi đẩy vào Queue
+        Log::error("OTP QUEUE FAILED: " . $e->getMessage());
+        return response()->json(['message' => 'Lỗi hệ thống mail. Vui lòng thử lại sau.'], 500);
       }
 
-      return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn']);
+      return response()->json(['message' => 'Mã xác nhận đã được gửi vào email của bạn (sẽ đến sau 30 giây)']);
 
     } catch (Exception $e) {
       return $this->debugError($e);
