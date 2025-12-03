@@ -43,6 +43,12 @@ return [
             'transport' => 'resend',
         ],
 
+        'from' => [
+            // Đảm bảo dòng này đọc đúng biến môi trường mới
+            'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+            'name' => env('MAIL_FROM_NAME', 'Example'),
+        ],
+
         // Loại bỏ mục 'resend' bị lặp
 
         'ses' => [
