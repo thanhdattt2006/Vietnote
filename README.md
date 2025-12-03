@@ -1,7 +1,9 @@
 # 🚀 Vietnote: Ứng Dụng Ghi Chú Fullstack (React + Laravel API)
 
 **Tác giả:** Võ Cao Thành Đạt (Dave)
+
 **Dự án cá nhân:** 11/2025 – 12/2025
+
 **Live Demo:** https://vietnote.vercel.app
 
 ---
