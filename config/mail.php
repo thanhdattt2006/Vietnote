@@ -48,14 +48,9 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
-        'from' => [
-            'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-            'name' => env('MAIL_FROM_NAME', 'EXAMPLE APP'),
+        'resend' => [
+            'transport' => 'resend',
         ],
-
-
-
-        // Loại bỏ mục 'resend' bị lặp
 
         'ses' => [
             'transport' => 'ses',
@@ -83,14 +78,6 @@ return [
             'transport' => 'array',
         ],
 
-        'failover' => [
-            'transport' => 'failover',
-            'mailers' => [
-                'resend', // Dùng resend thay cho smtp cũ
-                'log',
-            ],
-            'retry_after' => 60,
-        ],
 
         'roundrobin' => [
             'transport' => 'roundrobin',
