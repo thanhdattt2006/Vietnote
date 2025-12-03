@@ -26,10 +26,8 @@ COPY . .
 
 # 9. Tối ưu autoloader và phân quyền
 RUN composer dump-autoload --optimize && \
-    # Sửa user từ www-data sang nginx (User tiêu chuẩn trên Alpine/Nginx)
-    chown -R nginx:nginx /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 10. Mở port và chạy
 EXPOSE 8000
-CMD sh -c "php artisan storage:link && php-fpm && nginx -g 'daemon off;'"
+CMD ["sh", "-c", "php artisan config:clear && php artisan cache:clear && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=8000"]
