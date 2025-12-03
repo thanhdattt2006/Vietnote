@@ -36,17 +36,21 @@ return [
     */
 
     'mailers' => [
-
-        // Loại bỏ cấu hình 'smtp' cũ
-
-        'resend' => [
-            'transport' => 'resend',
+        'smtp' => [
+            'transport' => 'smtp',
+            // Các giá trị này phải đọc từ biến ENV
+            'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
+            'port' => env('MAIL_PORT', 587),
+            'encryption' => env('MAIL_ENCRYPTION', 'tls'),
+            'username' => env('MAIL_USERNAME'),
+            'password' => env('MAIL_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
         'from' => [
-            // Đảm bảo dòng này đọc đúng biến môi trường mới
             'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-            'name' => env('MAIL_FROM_NAME', 'Example'),
+            'name' => env('MAIL_FROM_NAME', 'EXAMPLE APP'),
         ],
 
 

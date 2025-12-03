@@ -137,8 +137,11 @@ class AdminController extends Controller
 
       foreach ($users as $user) {
         if (filter_var($user->username, FILTER_VALIDATE_EMAIL)) {
-          // 👇 Dùng Mail::to()->queue() hoặc Job::dispatch() để đảm bảo chạy Async
-          Mail::to($user->username)->queue(new BroadcastMail($request->subject, $request->content));
+          // Dùng queue() và delay 1 giờ
+          Mail::to($user->username)
+            ->queue(
+              (new BroadcastMail($request->subject, $request->content))->delay(now()->addHour(1)) // <--- Sửa ở đây
+            );
           $count++;
         }
       }
