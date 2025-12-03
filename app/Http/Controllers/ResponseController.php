@@ -50,7 +50,7 @@ class ResponseController extends Controller
       try {
         Mail::to($response->gmail)
           ->queue(
-            (new ThankYouMail($response->toArray()))->delay(now()->addMinutes(10)) // <--- Sửa ở đây
+            (new ThankYouMail($response->toArray()))->delay(now()->addMinutes(1)) // <--- Sửa ở đây
           );
       } catch (\Exception $e) {
         Log::error('Failed to dispatch ThankYouMail to queue: ' . $e->getMessage());

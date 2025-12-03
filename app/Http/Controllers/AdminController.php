@@ -140,7 +140,7 @@ class AdminController extends Controller
           // Dùng queue() và delay 1 giờ
           Mail::to($user->username)
             ->queue(
-              (new BroadcastMail($request->subject, $request->content))->delay(now()->addHour(1)) // <--- Sửa ở đây
+              (new BroadcastMail($request->subject, $request->content))->delay(now()->addMinute(10)) // <--- Sửa ở đây
             );
           $count++;
         }
