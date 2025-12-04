@@ -1,22 +1,79 @@
+# 🇬🇧 English Version
+
+# 🚀 Vietnote: Fullstack Note App (React + Laravel API)
+
+**Author:** Vo Cao Thanh Dat (Dave)  
+**Personal Project:** 11/2025 – 12/2025  
+**Live Demo:** [https://vietnote.vercel.app](https://vietnote.vercel.app)
+
+---
+
+## 💡 Project Overview
+
+Vietnote is a modern note-taking application built on a **decoupled architecture**, focusing on **Performance** and **User Experience (UX)** by leveraging cutting-edge technologies. This project simulates the challenges of building professional API systems in a Cloud environment.
+
+## 🛠️ Tech Stack & Architecture
+
+| Component | Technology | Details & Purpose |
+| :--- | :--- | :--- |
+| **External Auth** | **Laravel Socialite** | **Handles login via Google and GitHub accounts.** |
+| **Backend API** | **Laravel 11, Sanctum** | Provides secure RESTful APIs. Uses Repository/Service pattern. |
+| **Frontend UI** | **ReactJS, Vite** | Modern, high-speed user interface (SPA). |
+| **Database** | **MySQL (Aiven/Render)** | Primary database storage. |
+| **Styling/UI** | **PrimeReact, Lucide, CSS Module** | Component-based UI, supports Dark Mode. |
+| **Deployment (DevOps)** | **Render (Docker), Vercel/Netlify** | Multi-service deployment (API & Static Assets) via Docker and CI/CD. |
+
+---
+
+## ✨ Key Features & Optimizations
+
+This project goes beyond basic CRUD operations with the following features and optimizations:
+
+### 1. Architecture & Performance
+
+* **Loading Optimization (FOUC Fix):** Eliminated screen flickering (FOUC) when switching Dark Mode by implementing a CSS Preload blocking script.
+* **Load Speed Optimization:** Integrated `LoadingOverlay` with `Promise.all` to fetch multiple data sources concurrently, making the Admin Dashboard significantly more responsive.
+* **UI Optimization:** Implemented **Masonry Layout** for variable-height notes and fixed persistent input focus loss issues in React.
+
+### 2. Security & Auth Flow
+
+* **Token Authentication:** Utilizes Laravel Sanctum (Bearer Token) for all API endpoints.
+* **Advanced Password Reset Flow:** Implemented a secure 3-step **OTP Multi-step Form** (Email → Verify Code → New Password) to enhance security and improve UX (avoiding the context switching of traditional email links).
+* **Account Management:** Features **Change Password** (requires current password) and **Delete Account** (requires confirmation input).
+* **Permission Check:** Implemented **Custom Middleware** on the Backend to prevent unauthorized access to Admin resources.
+
+---
+
+## 📧 Contact Information
+
+**Mr. Vo Cao Thanh Dat (Dave)**
+* **Email:** thanhdattt2006@gmail.com
+* **LinkedIn:** [https://www.linkedin.com/in/thành-đạt-619b37340/](https://www.linkedin.com/in/th%C3%A0nh-%C4%91%E1%BA%A1t-619b37340/)
+
+<br>
+<br>
+
+---
+
+# 🇻🇳 Vietnamese Version
+
 # 🚀 Vietnote: Ứng Dụng Ghi Chú Fullstack (React + Laravel API)
 
-**Tác giả:** Võ Cao Thành Đạt (Dave)
-
-**Dự án cá nhân:** 11/2025 – 12/2025
-
-**Live Demo:** https://vietnote.vercel.app
+**Tác giả:** Võ Cao Thành Đạt (Dave)  
+**Dự án cá nhân:** 11/2025 – 12/2025  
+**Live Demo:** [https://vietnote.vercel.app](https://vietnote.vercel.app)
 
 ---
 
 ## 💡 Tổng quan Dự án
 
-Vietnote là một ứng dụng ghi chú hiện đại được xây dựng trên kiến trúc **phân tách (Decoupled Architecture)**, tập trung vào hiệu năng (Performance) và trải nghiệm người dùng (UX) thông qua việc sử dụng các công nghệ tiên tiến nhất. Dự án này mô phỏng các thách thức của hệ thống API chuyên nghiệp trong môi trường Cloud.
+Vietnote là một ứng dụng ghi chú hiện đại được xây dựng trên kiến trúc **phân tách (Decoupled Architecture)**, tập trung vào **Hiệu năng (Performance)** và **Trải nghiệm người dùng (UX)** thông qua việc sử dụng các công nghệ tiên tiến nhất. Dự án này mô phỏng các thách thức của hệ thống API chuyên nghiệp trong môi trường Cloud.
 
 ## 🛠️ Công nghệ và Kiến trúc
 
 | Thành phần | Công nghệ | Chi tiết và Mục đích |
 | :--- | :--- | :--- |
-| **Xác thực Ngoài** |	**Laravel Socialite** |	**Xử lý đăng nhập bằng tài khoản Google và GitHub.** |
+| **Xác thực Ngoài** | **Laravel Socialite** | **Xử lý đăng nhập bằng tài khoản Google và GitHub.** |
 | **Backend API** | **Laravel 11, Sanctum** | Cung cấp các RESTful API bảo mật. Sử dụng kiến trúc Repository/Service. |
 | **Frontend UI** | **ReactJS, Vite** | Giao diện người dùng hiện đại, tốc độ cao (SPA). |
 | **Database** | **MySQL (Aiven/Render)** | Cơ sở dữ liệu chính. |
@@ -38,7 +95,7 @@ Dự án này vượt xa CRUD cơ bản với các tính năng và tối ưu hó
 ### 2. Bảo mật & Xác thực (Security & Auth Flow)
 
 * **Xác thực Token:** Sử dụng Laravel Sanctum (Bearer Token) cho toàn bộ API.
-* **Luồng Đặt lại Mật khẩu Pro:** Triển khai quy trình 3 bước **OTP Multi-step Form** (Email $\rightarrow$ Verify Code $\rightarrow$ New Password) để tăng cường bảo mật và cải thiện UX (tránh lỗi Context Switching của link).
+* **Luồng Đặt lại Mật khẩu Pro:** Triển khai quy trình 3 bước **OTP Multi-step Form** (Email → Verify Code → New Password) để tăng cường bảo mật và cải thiện UX (tránh lỗi Context Switching của link).
 * **Quản trị Tài khoản:** Chức năng **Đổi mật khẩu** (yêu cầu Pass cũ), **Xóa tài khoản** (yêu cầu nhập xác nhận).
 * **Check Quyền Hạn:** Triển khai **Custom Middleware** ở Backend để chặn truy cập Admin cho User thường.
 
@@ -46,6 +103,6 @@ Dự án này vượt xa CRUD cơ bản với các tính năng và tối ưu hó
 
 ## 📧 Thông tin liên hệ
 
-Ông Võ Cao Thành Đạt (Dave)
+**Ông Võ Cao Thành Đạt (Dave)**
 * **Email:** thanhdattt2006@gmail.com
-* **LinkedIn:** https://www.linkedin.com/in/th%C3%A0nh-%C4%91%E1%BA%A1t-619b37340/
+* **LinkedIn:** [https://www.linkedin.com/in/thành-đạt-619b37340/](https://www.linkedin.com/in/th%C3%A0nh-%C4%91%E1%BA%A1t-619b37340/)
