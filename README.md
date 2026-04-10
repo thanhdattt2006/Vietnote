@@ -61,10 +61,3 @@ Future Roadmap
 Backend Refactoring: Migrating the entire backend architecture to Java Spring Boot to leverage strong typing and enterprise-grade dependency injection.
 
 Persistence Strategy: Implementing Google Cloud Storage (GCS) for file uploads to transition towards a fully stateless architecture, bypassing the limitations of ephemeral storage on PaaS providers.
-
-VIETNOTE: ỨNG DỤNG FULL-STACK DECOUPLED
-Tác giả: Võ Cao Thành Đạt (Dave)
-
-Thời gian: 11/2025 – 12/2025
-
-Live Demo: https://vietnote.vercel.app
