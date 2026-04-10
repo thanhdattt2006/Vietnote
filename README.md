@@ -1,108 +1,70 @@
-# 🇬🇧 English Version
+VIETNOTE: FULL-STACK DECOUPLED APPLICATION
+Author: Vo Cao Thanh Dat (Dave)
 
-# 🚀 Vietnote: Fullstack Note App (React + Laravel API)
+Timeline: 11/2025 – 12/2025
 
-**Author:** Vo Cao Thanh Dat (Dave)  
-**Personal Project:** 11/2025 – 12/2025  
-**Live Demo:** [https://vietnote.vercel.app](https://vietnote.vercel.app)
+Live Demo: https://vietnote.vercel.app
 
----
+Backend Repository: [Link to your Backend repo if separate]
 
-## 💡 Project Overview
+Project Overview
+Vietnote is a modern note-taking platform built on a decoupled architecture, separating the React frontend from the Laravel API. The project focuses on high performance, secure authentication flows, and the challenges of deploying multi-service systems in a cloud environment.
 
-Vietnote is a modern note-taking application built on a **decoupled architecture**, focusing on **Performance** and **User Experience (UX)** by leveraging cutting-edge technologies. This project simulates the challenges of building professional API systems in a Cloud environment.
+Technical Stack
+Frontend
 
-## 🛠️ Tech Stack & Architecture
+ReactJS, Vite
 
-| Component | Technology | Details & Purpose |
-| :--- | :--- | :--- |
-| **External Auth** | **Laravel Socialite** | **Handles login via Google and GitHub accounts.** |
-| **Backend API** | **Laravel 11, Sanctum** | Provides secure RESTful APIs. Uses Repository/Service pattern. |
-| **Frontend UI** | **ReactJS, Vite** | Modern, high-speed user interface (SPA). |
-| **Database** | **MySQL (Aiven/Render)** | Primary database storage. |
-| **Styling/UI** | **PrimeReact, Lucide, CSS Module** | Component-based UI, supports Dark Mode. |
-| **Deployment (DevOps)** | **Render (Docker), Vercel/Netlify** | Multi-service deployment (API & Static Assets) via Docker and CI/CD. |
+Styling: PrimeReact, Lucide, CSS Modules
 
----
+State Management: React Hooks & Context API
 
-## ✨ Key Features & Optimizations
+Backend
 
-This project goes beyond basic CRUD operations with the following features and optimizations:
+Laravel 11 (RESTful API)
 
-### 1. Architecture & Performance
+Authentication: Laravel Sanctum (Token-based)
 
-* **Loading Optimization (FOUC Fix):** Eliminated screen flickering (FOUC) when switching Dark Mode by implementing a CSS Preload blocking script.
-* **Load Speed Optimization:** Integrated `LoadingOverlay` with `Promise.all` to fetch multiple data sources concurrently, making the Admin Dashboard significantly more responsive.
-* **UI Optimization:** Implemented **Masonry Layout** for variable-height notes and fixed persistent input focus loss issues in React.
+Social Auth: OAuth 2.0 (Google & GitHub via Laravel Socialite)
 
-### 2. Security & Auth Flow
+Database & Infrastructure
 
-* **Token Authentication:** Utilizes Laravel Sanctum (Bearer Token) for all API endpoints.
-* **Advanced Password Reset Flow:** Implemented a secure 3-step **OTP Multi-step Form** (Email → Verify Code → New Password) to enhance security and improve UX (avoiding the context switching of traditional email links).
-* **Account Management:** Features **Change Password** (requires current password) and **Delete Account** (requires confirmation input).
-* **Permission Check:** Implemented **Custom Middleware** on the Backend to prevent unauthorized access to Admin resources.
+Database: MySQL (Hosted on Aiven)
 
----
+Deployment: Docker on Render (API), Vercel (Frontend)
 
-## 📧 Contact Information
+Connectivity: Cross-Origin Resource Sharing (CORS) management between distributed services.
 
-**Mr. Vo Cao Thanh Dat (Dave)**
-* **Email:** thanhdattt2006@gmail.com
-* **LinkedIn:** [https://www.linkedin.com/in/thành-đạt-619b37340/](https://www.linkedin.com/in/th%C3%A0nh-%C4%91%E1%BA%A1t-619b37340/)
+Engineering Highlights & Problem Solving
+This project serves as a practical exploration of performance optimization and infrastructure management.
 
-<br>
-<br>
+1. Performance & UI Optimization
+Loading Optimization: Eliminated Flash of Unstyled Content (FOUC) during theme transitions by implementing a CSS preload blocking script.
 
----
+API Concurrency: Utilized Promise.all to fetch multiple data sources simultaneously for the Admin Dashboard, reducing initial load time significantly.
 
-# 🇻🇳 Vietnamese Version
+Masonry Layout: Implemented dynamic grid systems for variable-height notes to ensure a smooth user experience.
 
-# 🚀 Vietnote: Ứng Dụng Ghi Chú Fullstack (React + Laravel API)
+2. Security & Modern Auth Flows
+OAuth 2.0 Integration: Implemented secure login via Google and GitHub.
 
-**Tác giả:** Võ Cao Thành Đạt (Dave)  
-**Dự án cá nhân:** 11/2025 – 12/2025  
-**Live Demo:** [https://vietnote.vercel.app](https://vietnote.vercel.app)
+Multi-step OTP Flow: Developed a 3-step password reset process (Email verification -> OTP validation -> Password update) to improve security over traditional link-based resets.
 
----
+Access Control: Custom Middleware implemented on the backend to enforce strict role-based access control (RBAC).
 
-## 💡 Tổng quan Dự án
+3. Infrastructure Challenges
+Cloud Deployment Logs: Successfully navigated the complexities of containerizing a Laravel application with Docker and debugging deployment logs on Render.
 
-Vietnote là một ứng dụng ghi chú hiện đại được xây dựng trên kiến trúc **phân tách (Decoupled Architecture)**, tập trung vào **Hiệu năng (Performance)** và **Trải nghiệm người dùng (UX)** thông qua việc sử dụng các công nghệ tiên tiến nhất. Dự án này mô phỏng các thách thức của hệ thống API chuyên nghiệp trong môi trường Cloud.
+Environment Discrepancies: Identified and documented SMTP port restrictions in the production environment (Render/Vercel) which affected the mailing system. Currently researching API-based mailing providers (SendGrid/Mailgun) as a resolution.
 
-## 🛠️ Công nghệ và Kiến trúc
+Future Roadmap
+Backend Refactoring: Migrating the entire backend architecture to Java Spring Boot to leverage strong typing and enterprise-grade dependency injection.
 
-| Thành phần | Công nghệ | Chi tiết và Mục đích |
-| :--- | :--- | :--- |
-| **Xác thực Ngoài** | **Laravel Socialite** | **Xử lý đăng nhập bằng tài khoản Google và GitHub.** |
-| **Backend API** | **Laravel 11, Sanctum** | Cung cấp các RESTful API bảo mật. Sử dụng kiến trúc Repository/Service. |
-| **Frontend UI** | **ReactJS, Vite** | Giao diện người dùng hiện đại, tốc độ cao (SPA). |
-| **Database** | **MySQL (Aiven/Render)** | Cơ sở dữ liệu chính. |
-| **Styling/UI** | **PrimeReact, Lucide, CSS Module** | Component hóa giao diện, hỗ trợ Dark Mode. |
-| **Deployment (DevOps)** | **Render (Docker), Vercel/Netlify** | Triển khai Multi-service (API & Static Assets) qua Docker và CI/CD. |
+Persistence Strategy: Implementing Google Cloud Storage (GCS) for file uploads to transition towards a fully stateless architecture, bypassing the limitations of ephemeral storage on PaaS providers.
 
----
+VIETNOTE: ỨNG DỤNG FULL-STACK DECOUPLED
+Tác giả: Võ Cao Thành Đạt (Dave)
 
-## ✨ Các Tính năng Nổi bật & Tối ưu hóa
+Thời gian: 11/2025 – 12/2025
 
-Dự án này vượt xa CRUD cơ bản với các tính năng và tối ưu hóa sau:
-
-### 1. Hiệu năng & Kiến trúc (Architecture & Performance)
-
-* **Tối ưu Loading (FOUC Fix):** Khắc phục lỗi nháy màn hình (FOUC/Flickering) khi chuyển Dark Mode bằng script chặn CSS Preload.
-* **Tối ưu Tốc độ Load:** Tích hợp `LoadingOverlay` với `Promise.all` để tải nhiều dữ liệu cùng lúc, giúp Dashboard Admin phản hồi nhanh hơn.
-* **Tối ưu UI:** Triển khai **Masonry Layout** cho ghi chú và fix lỗi mất focus input trong React.
-
-### 2. Bảo mật & Xác thực (Security & Auth Flow)
-
-* **Xác thực Token:** Sử dụng Laravel Sanctum (Bearer Token) cho toàn bộ API.
-* **Luồng Đặt lại Mật khẩu Pro:** Triển khai quy trình 3 bước **OTP Multi-step Form** (Email → Verify Code → New Password) để tăng cường bảo mật và cải thiện UX (tránh lỗi Context Switching của link).
-* **Quản trị Tài khoản:** Chức năng **Đổi mật khẩu** (yêu cầu Pass cũ), **Xóa tài khoản** (yêu cầu nhập xác nhận).
-* **Check Quyền Hạn:** Triển khai **Custom Middleware** ở Backend để chặn truy cập Admin cho User thường.
-
----
-
-## 📧 Thông tin liên hệ
-
-**Ông Võ Cao Thành Đạt (Dave)**
-* **Email:** thanhdattt2006@gmail.com
-* **LinkedIn:** [https://www.linkedin.com/in/thành-đạt-619b37340/](https://www.linkedin.com/in/th%C3%A0nh-%C4%91%E1%BA%A1t-619b37340/)
+Live Demo: https://vietnote.vercel.app
