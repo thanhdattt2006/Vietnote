@@ -4,6 +4,8 @@
 **Timeline:** 11/2025 – 12/2025  
 **Live Demo:** [https://vietnote.vercel.app](https://vietnote.vercel.app)
 
+> **Project Status:** 🚀 The project is currently pending production deployment on a dedicated physical server (not a VPS) to ensure maximum API performance and data security.
+
 ---
 
 ## 💡 Project Overview
