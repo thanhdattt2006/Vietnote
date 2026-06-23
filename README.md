@@ -19,7 +19,7 @@ Vietnote is a modern, high-performance note-taking application built on a **Deco
 | **Backend API** | **Laravel 11, Sanctum** | Provides secure RESTful APIs utilizing the Repository/Service Pattern. |
 | **External Auth** | **Laravel Socialite** | Handles quick login flows via Google and GitHub accounts (OAuth2). |
 | **Email & Services** | **Resend (resend-laravel)** | Automatically sends notification emails and OTP verification codes. |
-| **File Storage** | **AWS S3 (Flysystem)** | Integrates Cloud Storage for saving file attachments securely. |
+| **File Storage** | **Local Storage (storage/app/public)** | Integrates local disk storage for saving file attachments securely. |
 | **Frontend UI** | **ReactJS 18, Vite 5.4** | Builds a highly responsive SPA (Single Page Application). |
 | **UI/UX & Styling** | **PrimeReact 10, PrimeFlex, Quill** | Component-based UI with built-in Dark Mode and Rich Text Editor (Quill) support. |
 | **Database** | **MySQL (Aiven/Render)** | The primary relational database for the system. |
