@@ -66,10 +66,10 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 
 ## Phase 5: REST Controllers & Exception Handling 🌐
 
-- [ ] Tạo `AuthController`: `/api/auth/login`, `/register`, `/forgot-password`, `/reset-password`.
-- [ ] Tạo `NoteController`: `/api/notes`, `/api/notes/{id}`, `/api/notes/{id}/pin`, `/api/notes/trash`.
-- [ ] Tạo `AdminController`: Dùng `@PreAuthorize("hasRole('ADMIN')")` để chặn quyền (Thay thế cho Middleware cũ).
-- [ ] Tạo `GlobalExceptionHandler` (`@RestControllerAdvice`):
+- [x] Tạo `AuthController`: `/api/auth/login`, `/register`, `/forgot-password`, `/reset-password`.
+- [x] Tạo `NoteController`: `/api/notes`, `/api/notes/{id}`, `/api/notes/{id}/pin`, `/api/notes/trash`.
+- [x] Tạo `AdminController`: Dùng `@PreAuthorize("hasRole('ADMIN')")` để chặn quyền (Thay thế cho Middleware cũ).
+- [x] Tạo `GlobalExceptionHandler` (`@RestControllerAdvice`):
   - Gom toàn bộ lỗi `MethodArgumentNotValidException` (lỗi Validate form) và trả về format JSON chuẩn (`{ errors: ... }`).
   - Xử lý lỗi 404 (EntityNotFoundException) trả về `{ message: "Not Found" }`.
 
