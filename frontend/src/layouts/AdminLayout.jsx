@@ -7,10 +7,12 @@ import {
   useLocation,
 } from 'react-router-dom';
 import useAuthStore from '../stores/useAuthStore';
+import { useLanguage } from '../contexts/LanguageContext';
 import { LogOut, LayoutDashboard } from 'lucide-react';
 
 const AdminLayout = () => {
   const { user, logout } = useAuthStore();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -71,7 +73,7 @@ const AdminLayout = () => {
             onClick={handleLogout}
             className='flex w-full items-center gap-2 rounded-lg bg-red-500/10 p-3 text-red-500 transition-colors duration-200 hover:bg-red-500/20'
           >
-            <LogOut size={18} /> Đăng xuất
+            <LogOut size={18} /> {t('logout')}
           </button>
         </div>
       </aside>

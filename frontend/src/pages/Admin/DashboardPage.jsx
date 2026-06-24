@@ -30,9 +30,12 @@ import {
 import BroadcastModal from '../../components/common/BroadcastModal';
 import UserDetailModal from '../../components/common/UserDetailModal';
 
+import { useLanguage } from '../../contexts/LanguageContext';
+
 const COLORS = ['#38bdf8', '#34d399', '#facc15', '#f87171'];
 
 const DashboardPage = () => {
+  const { t } = useLanguage();
   const [stats, setStats] = useState(null);
   const [activeTab, setActiveTab] = useState('users');
   const [usersData, setUsersData] = useState({ data: [], total: 0, page: 1, limit: 10 });
@@ -83,8 +86,8 @@ const DashboardPage = () => {
   const handleDeleteUser = (id) => {
     setConfirmDialog({
       type: 'danger',
-      title: 'Xóa người dùng',
-      message: 'Hành động này sẽ xóa vĩnh viễn user và toàn bộ dữ liệu.',
+      title: t('deleteUserConfirmTitle'),
+      message: t('deleteUserConfirmMsg'),
       onConfirm: async () => {
         try {
           await adminApi.deleteUser(id);
@@ -92,7 +95,7 @@ const DashboardPage = () => {
           loadUsers(usersData.page, searchKeyword);
           setStats(await adminApi.getStats());
         } catch (e) {
-          alert('Lỗi: ' + e.response?.data?.message);
+          alert(t('error') + ': ' + e.response?.data?.message);
         }
       },
       onCancel: () => setConfirmDialog(null),
@@ -102,8 +105,8 @@ const DashboardPage = () => {
   const handleDeleteFeedback = (id) => {
     setConfirmDialog({
       type: 'danger',
-      title: 'Xóa phản hồi',
-      message: 'Bạn muốn xóa phản hồi này?',
+      title: t('deleteFeedbackConfirmTitle'),
+      message: t('deleteFeedbackConfirmMsg'),
       onConfirm: async () => {
         try {
           await adminApi.deleteFeedback(id);
@@ -111,7 +114,7 @@ const DashboardPage = () => {
           loadFeedbacks(feedbacksData.page);
           setStats(await adminApi.getStats());
         } catch (e) {
-          alert('Lỗi xóa feedback');
+          alert(t('error'));
         }
       },
       onCancel: () => setConfirmDialog(null),
@@ -119,9 +122,9 @@ const DashboardPage = () => {
   };
 
   const pieData = stats ? [
-    { name: 'Nam', value: stats.gender_stats.male },
-    { name: 'Nữ', value: stats.gender_stats.female },
-    { name: 'Khác', value: stats.gender_stats.other },
+    { name: t('male'), value: stats.gender_stats.male },
+    { name: t('female'), value: stats.gender_stats.female },
+    { name: t('other'), value: stats.gender_stats.other },
   ].filter((x) => x.value > 0) : [];
 
   return (
@@ -130,27 +133,27 @@ const DashboardPage = () => {
 
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-[#E8EAED] mb-1">Dashboard</h1>
-          <p className="text-sm text-[#9AA0A6]">Thống kê & Quản lý hệ thống</p>
+          <h1 className="text-3xl font-bold text-[#E8EAED] mb-1">{t('adminDashboard')}</h1>
+          <p className="text-sm text-[#9AA0A6]">{t('statsAndManagement')}</p>
         </div>
         <button
           className="flex items-center gap-2 bg-[#38bdf8] text-[#0f172a] font-bold py-2 px-4 rounded-lg hover:bg-[#0284c7] transition-colors"
           onClick={() => setShowBroadcastModal(true)}
         >
-          <Send size={18} /> Gửi thông báo
+          <Send size={18} /> {t('sendBroadcast')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-        <StatCard title="Tổng Users" value={stats?.total_users || 0} icon={<Users size={24} color="#38bdf8" />} />
-        <StatCard title="Tổng Notes" value={stats?.total_notes || 0} icon={<FileText size={24} color="#34d399" />} />
-        <StatCard title="Phản hồi" value={stats?.total_responses || 0} icon={<MessageSquare size={24} color="#facc15" />} />
+        <StatCard title={t('totalUsers')} value={stats?.total_users || 0} icon={<Users size={24} color="#38bdf8" />} />
+        <StatCard title={t('totalNotes')} value={stats?.total_notes || 0} icon={<FileText size={24} color="#34d399" />} />
+        <StatCard title={t('totalFeedbacks')} value={stats?.total_responses || 0} icon={<MessageSquare size={24} color="#facc15" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         <div className="lg:col-span-2 bg-[#2A2A38] p-5 rounded-xl border border-[#3C3C4A]">
           <h3 className="flex items-center gap-2 text-[#E8EAED] text-lg mb-5">
-            <TrendingUp size={20} color="#34d399" /> Tăng trưởng
+            <TrendingUp size={20} color="#34d399" /> {t('growth')}
           </h3>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={stats?.growth_chart || []}>
@@ -159,15 +162,15 @@ const DashboardPage = () => {
               <YAxis axisLine={false} tickLine={false} tick={{ fill: '#9AA0A6' }} />
               <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #3C3C4A', background: '#1A1A24', color: '#E8EAED' }} itemStyle={{ color: '#E8EAED' }} />
               <Legend wrapperStyle={{ paddingTop: '10px' }} />
-              <Bar dataKey="Users" name="User mới" fill="#38bdf8" radius={[4, 4, 0, 0]} barSize={30} />
-              <Bar dataKey="Notes" name="Note mới" fill="#34d399" radius={[4, 4, 0, 0]} barSize={30} />
+              <Bar dataKey="Users" name={t('newUser')} fill="#38bdf8" radius={[4, 4, 0, 0]} barSize={30} />
+              <Bar dataKey="Notes" name={t('newNote')} fill="#34d399" radius={[4, 4, 0, 0]} barSize={30} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         <div className="bg-[#2A2A38] p-5 rounded-xl border border-[#3C3C4A]">
           <h3 className="flex items-center gap-2 text-[#E8EAED] text-lg mb-5">
-            <PieIcon size={20} color="#facc15" /> Giới tính
+            <PieIcon size={20} color="#facc15" /> {t('genderStats')}
           </h3>
           <ResponsiveContainer width="100%" height={280}>
             <PieChart>
@@ -191,7 +194,7 @@ const DashboardPage = () => {
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
-                placeholder="Tìm user..."
+                placeholder={t('searchUser')}
                 className="pl-9 pr-3 py-2 rounded-full border border-[#3C3C4A] bg-[#1A1A24] text-white outline-none text-sm focus:border-[#38bdf8] transition-colors"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
@@ -207,11 +210,11 @@ const DashboardPage = () => {
                 <thead className="bg-[#1A1A24]">
                   <tr className="text-left text-[#9AA0A6] text-xs uppercase tracking-wider">
                     <th className="p-4">ID</th>
-                    <th className="p-4">User Info</th>
-                    <th className="p-4">Role</th>
+                    <th className="p-4">{t('userInfo')}</th>
+                    <th className="p-4">{t('role')}</th>
                     <th className="p-4 text-center">Notes</th>
-                    <th className="p-4">Join Date</th>
-                    <th className="p-4">Action</th>
+                    <th className="p-4">{t('joinDate')}</th>
+                    <th className="p-4">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -257,11 +260,11 @@ const DashboardPage = () => {
                 <thead className="bg-[#1A1A24]">
                   <tr className="text-left text-[#9AA0A6] text-xs uppercase tracking-wider">
                     <th className="p-4">ID</th>
-                    <th className="p-4">Sender</th>
-                    <th className="p-4">Subject</th>
-                    <th className="p-4">Content</th>
-                    <th className="p-4">Date</th>
-                    <th className="p-4">Action</th>
+                    <th className="p-4">{t('sender')}</th>
+                    <th className="p-4">{t('subject')}</th>
+                    <th className="p-4">{t('content')}</th>
+                    <th className="p-4">{t('date')}</th>
+                    <th className="p-4">{t('action')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -293,7 +296,7 @@ const DashboardPage = () => {
       </div>
 
       {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
-      <BroadcastModal isOpen={showBroadcastModal} onClose={() => setShowBroadcastModal(false)} onSuccess={() => alert('Đã gửi email thành công!')} />
+      <BroadcastModal isOpen={showBroadcastModal} onClose={() => setShowBroadcastModal(false)} onSuccess={() => alert(t('broadcastSuccess'))} />
       <UserDetailModal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} user={selectedUser} />
     </div>
   );

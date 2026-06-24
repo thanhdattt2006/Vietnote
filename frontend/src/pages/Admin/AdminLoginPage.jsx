@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLanguage } from '../../contexts/LanguageContext';
 import authApi from '../../api/authApi';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import { ShieldCheck } from 'lucide-react';
 
 const AdminLoginPage = () => {
+  const { t } = useLanguage();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,7 +25,7 @@ const AdminLoginPage = () => {
       const res = await authApi.login(username, password);
 
       if (res.user.role !== 'admin') {
-        setError('Đây là vùng không thể chạm vào :)');
+        setError(t('adminZoneAccessDenied'));
         authApi.logout();
         return;
       }
@@ -35,7 +37,7 @@ const AdminLoginPage = () => {
 
       navigate('/admin/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Đăng nhập thất bại');
+      setError(err.response?.data?.message || t('loginFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +89,7 @@ const AdminLoginPage = () => {
             Admin Portal
           </h2>
           <p style={{ color: '#9AA0A6', fontSize: '0.9rem' }}>
-            Dave quản lý khu này
+            {t('adminZoneDesc')}
           </p>
         </div>
 
@@ -171,7 +173,7 @@ const AdminLoginPage = () => {
             fontWeight: 'bold',
           }}
         >
-          Đăng nhập hệ thống
+          {t('systemLogin')}
         </button>
       </form>
     </div>

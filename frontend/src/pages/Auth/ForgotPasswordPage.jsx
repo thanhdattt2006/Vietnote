@@ -35,7 +35,7 @@ const ForgotPasswordPage = () => {
       setConfirmDialog({
         type: 'alert',
         title: t('error'),
-        message: error.response?.data?.message || 'Lỗi gửi mail',
+        message: error.response?.data?.message || t('errorSendingEmail'),
         onConfirm: () => setConfirmDialog(null),
       });
     } finally {
@@ -112,8 +112,8 @@ const ForgotPasswordPage = () => {
     } catch (error) {
       setConfirmDialog({
         type: 'alert',
-        title: 'Lỗi',
-        message: error.response?.data?.message || t('notCorrectOTP'),
+        title: t('error'),
+        message: error.response?.data?.message || t('noCorrectOTP'),
         onConfirm: () => setConfirmDialog(null),
       });
     } finally {
