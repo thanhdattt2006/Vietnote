@@ -5,6 +5,7 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 ---
 
 ## Phase 1: Project Setup & Dependencies 📦
+
 - [x] Khởi tạo dự án qua Spring Initializr (Maven, Java 21).
 - [x] Khai báo các Dependencies bắt buộc trong `pom.xml`:
   - **Core & DB:**
@@ -21,22 +22,24 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
     - `spring-boot-starter-mail` (Gửi Email OTP)
 - [x] Cấu hình `application.yml` (Kết nối DB, JWT Secret, Google/Github Client IDs).
 - [x] Cấu hình Naming Strategy trong `application.yml` để giữ nguyên chuẩn `camelCase` của Database cũ:
-  `spring.jpa.hibernate.naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl`
+      `spring.jpa.hibernate.naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl`
 
 ---
 
 ## Phase 2: Database Entities & Repositories 🗄️
-- [ ] Tạo Entity `User`: Map với bảng `Account` cũ, bỏ field password required, thêm `provider` và `provider_id`.
-- [ ] Tạo Entity `Note`: 
+
+- [x] Tạo Entity `User`: Map với bảng `Account` cũ, bỏ field password required, thêm `provider` và `provider_id`.
+- [x] Tạo Entity `Note`:
   - Khai báo `@ManyToOne` với `User`.
   - 🪄 Thêm `@SQLDelete(sql = "UPDATE Note SET isDeleted = true, deletedAt = CURRENT_TIMESTAMP WHERE id=?")`
-  - 🪄 Thêm `@Where(clause = "isDeleted = false")` để tự động giả lập Soft Delete.
-- [ ] Tạo Entity `NoteImage`, `Feedback`, `OtpToken`.
-- [ ] Tạo các interface Repository extends `JpaRepository` (`UserRepository`, `NoteRepository`,...).
+  - 🪄 Thêm `@SQLRestriction("isDeleted = false")` để tự động giả lập Soft Delete (thay `@Where` deprecated từ Hibernate 6.3).
+- [x] Tạo Entity `NoteImage`, `Feedback`, `OtpToken`.
+- [x] Tạo các interface Repository extends `JpaRepository` (`UserRepository`, `NoteRepository`,...).
 
 ---
 
 ## Phase 3: Security & OAuth2 Architecture (Khó Nhất) 🔐
+
 - [ ] Viết `JwtService`: Chứa logic sinh Token (generateToken), giải mã (extractUsername), và kiểm tra hạn (isTokenValid).
 - [ ] Viết `JwtAuthenticationFilter`: Kế thừa `OncePerRequestFilter` để móc token từ header `Authorization: Bearer <token>` và set `SecurityContextHolder`.
 - [ ] Cấu hình `SecurityFilterChain`:
@@ -44,11 +47,12 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
   - Chặn tất cả các API còn lại (bắt buộc có Token).
 - [ ] Tích hợp OAuth2 Login (Google/Github):
   - Custom `OAuth2UserService` để tự động lưu User mới vào DB nếu chưa tồn tại.
-  - Custom `OAuth2AuthenticationSuccessHandler` để tự sinh JWT Token và redirect về Frontend (`http://localhost:5173/auth/callback?token=...`).
+  - Custom `OAuth2AuthenticationSuccessHandler` để tự sinh JWT Token và redirect về Frontend (`http://localhost:3000/auth/callback?token=...`).
 
 ---
 
 ## Phase 4: Core Business Logic (Services) ⚙️
+
 - [ ] Viết `AuthService`:
   - Hàm `register(DTO)` & `login(DTO)`.
   - Hàm `forgotPassword()`: Sinh OTP lưu vào bảng `OtpToken`, kích hoạt `@Async` gửi mail (chống block luồng).
@@ -61,16 +65,18 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 ---
 
 ## Phase 5: REST Controllers & Exception Handling 🌐
+
 - [ ] Tạo `AuthController`: `/api/auth/login`, `/register`, `/forgot-password`, `/reset-password`.
 - [ ] Tạo `NoteController`: `/api/notes`, `/api/notes/{id}`, `/api/notes/{id}/pin`, `/api/notes/trash`.
 - [ ] Tạo `AdminController`: Dùng `@PreAuthorize("hasRole('ADMIN')")` để chặn quyền (Thay thế cho Middleware cũ).
-- [ ] Tạo `GlobalExceptionHandler` (`@RestControllerAdvice`): 
+- [ ] Tạo `GlobalExceptionHandler` (`@RestControllerAdvice`):
   - Gom toàn bộ lỗi `MethodArgumentNotValidException` (lỗi Validate form) và trả về format JSON chuẩn (`{ errors: ... }`).
   - Xử lý lỗi 404 (EntityNotFoundException) trả về `{ message: "Not Found" }`.
 
 ---
 
 ## Phase 6: Cloudinary Refactor & Final Audit ☁️
+
 - [ ] Thống nhất luồng Cloudinary với Frontend: Backend sẽ KHÔNG CẦN xử lý Base64, Regex hay File IO nữa. API `createNote` chỉ nhận chuỗi HTML thuần chứa link ảnh từ Frontend đẩy xuống.
 - [ ] Viết API xóa rác Cloudinary (Optional): Khi Note bị xóa vĩnh viễn (`forceDelete`), Backend lấy `cloudinary_public_id` để gọi API của Cloudinary xóa ảnh, tránh tốn dung lượng rác.
 - [ ] Chạy Postman Test toàn bộ API để đối chiếu với Laravel cũ.
