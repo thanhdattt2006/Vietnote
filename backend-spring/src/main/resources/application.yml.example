@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: vietnote-backend
+
+  # ===== DATABASE =====
+  datasource:
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_DATABASE:vietnote}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:your_db_password_here}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ===== JPA / HIBERNATE =====
+  jpa:
+    hibernate:
+      ddl-auto: update          # Tự động sync schema (dùng 'validate' khi production)
+      naming:
+        # Giữ nguyên camelCase của DB cũ (Account, NoteImage, ownerId, isPinned...)
+        # Không để Hibernate tự đổi sang snake_case
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+    show-sql: true              # Log SQL ra console (tắt khi production)
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # ===== MAIL (SMTP Gmail) =====
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-gmail-app-password}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+
+  # ===== OAUTH2 CLIENT =====
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id.apps.googleusercontent.com}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
+          github:
+            client-id: ${GITHUB_CLIENT_ID:your-github-client-id}
+            client-secret: ${GITHUB_CLIENT_SECRET:your-github-client-secret}
+            redirect-uri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - user:email
+              - read:user
+
+# ===== SERVER =====
+server:
+  port: ${PORT:8080}
+  # Cổng 8080 (khác 8000 của Laravel) để không conflict khi chạy song song
+
+# ===== APPLICATION CUSTOM PROPERTIES =====
+application:
+  # JWT Secret (Thay thế Sanctum token — phải là chuỗi >= 256 bit / 32 ký tự)
+  jwt:
+    secret: ${JWT_SECRET:your-super-secret-key-must-be-at-least-256-bits-long}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}   # 24 giờ (ms)
+
+  # Frontend URL (dùng trong OAuth2 redirect callback)
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+
+  # Mail sender info
+  mail:
+    from-address: ${MAIL_FROM_ADDRESS:your-email@gmail.com}
+    from-name: ${MAIL_FROM_NAME:Vietnote}
+
+# ===== LOGGING =====
+logging:
+  level:
+    com.example.backend_spring: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: INFO
