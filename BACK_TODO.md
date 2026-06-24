@@ -5,8 +5,8 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 ---
 
 ## Phase 1: Project Setup & Dependencies 📦
-- [ ] Khởi tạo dự án qua Spring Initializr (Maven, Java 21).
-- [ ] Khai báo các Dependencies bắt buộc trong `pom.xml`:
+- [x] Khởi tạo dự án qua Spring Initializr (Maven, Java 21).
+- [x] Khai báo các Dependencies bắt buộc trong `pom.xml`:
   - **Core & DB:**
     - `spring-boot-starter-web` (REST APIs)
     - `spring-boot-starter-data-jpa` (Hibernate/ORM)
@@ -19,8 +19,8 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
     - `io.jsonwebtoken:jjwt-api`, `jjwt-impl`, `jjwt-jackson` (Xử lý JWT Token)
   - **Mail & Queue:**
     - `spring-boot-starter-mail` (Gửi Email OTP)
-- [ ] Cấu hình `application.yml` (Kết nối DB, JWT Secret, Google/Github Client IDs).
-- [ ] Cấu hình Naming Strategy trong `application.yml` để giữ nguyên chuẩn `camelCase` của Database cũ:
+- [x] Cấu hình `application.yml` (Kết nối DB, JWT Secret, Google/Github Client IDs).
+- [x] Cấu hình Naming Strategy trong `application.yml` để giữ nguyên chuẩn `camelCase` của Database cũ:
   `spring.jpa.hibernate.naming.physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl`
 
 ---
