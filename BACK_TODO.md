@@ -40,14 +40,14 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 
 ## Phase 3: Security & OAuth2 Architecture (Khó Nhất) 🔐
 
-- [ ] Viết `JwtService`: Chứa logic sinh Token (generateToken), giải mã (extractUsername), và kiểm tra hạn (isTokenValid).
-- [ ] Viết `JwtAuthenticationFilter`: Kế thừa `OncePerRequestFilter` để móc token từ header `Authorization: Bearer <token>` và set `SecurityContextHolder`.
-- [ ] Cấu hình `SecurityFilterChain`:
+- [x] Viết `JwtService`: Chứa logic sinh Token (generateToken), giải mã (extractUsername), và kiểm tra hạn (isTokenValid).
+- [x] Viết `JwtAuthenticationFilter`: Kế thừa `OncePerRequestFilter` để móc token từ header `Authorization: Bearer <token>` và set `SecurityContextHolder`.
+- [x] Cấu hình `SecurityFilterChain`:
   - Cho phép public các API: `/api/auth/**`, `/oauth2/**`.
   - Chặn tất cả các API còn lại (bắt buộc có Token).
-- [ ] Tích hợp OAuth2 Login (Google/Github):
+- [x] Tích hợp OAuth2 Login (Google/Github):
   - Custom `OAuth2UserService` để tự động lưu User mới vào DB nếu chưa tồn tại.
-  - Custom `OAuth2AuthenticationSuccessHandler` để tự sinh JWT Token và redirect về Frontend (`http://localhost:3000/auth/callback?token=...`).
+  - Custom `OAuth2AuthenticationSuccessHandler` để tự sinh JWT Token và redirect về Frontend (`http://localhost:5173/auth/callback?token=...`).
 
 ---
 
