@@ -53,14 +53,14 @@ Dưới đây là lộ trình chuẩn chỉ từ A-Z để đập bỏ Laravel v
 
 ## Phase 4: Core Business Logic (Services) ⚙️
 
-- [ ] Viết `AuthService`:
+- [x] Viết `AuthService`:
   - Hàm `register(DTO)` & `login(DTO)`.
   - Hàm `forgotPassword()`: Sinh OTP lưu vào bảng `OtpToken`, kích hoạt `@Async` gửi mail (chống block luồng).
   - Hàm `verifyOtp()` & `resetPassword()`.
-- [ ] Viết `NoteService`:
+- [x] Viết `NoteService`:
   - Các hàm CRUD: `createNote`, `updateNote`, `deleteToTrash`, `restoreFromTrash`, `forceDelete`.
   - Áp dụng `Pageable` của Spring Data JPA để xử lý Phân trang (Pagination) và Search thay vì tự code thủ công.
-- [ ] Mở tính năng Đa luồng: Thêm `@EnableAsync` vào hàm `main` để cho phép gửi mail OTP chạy ngầm (giống cơ chế Queue delay của Laravel).
+- [x] Mở tính năng Đa luồng: Thêm `@EnableAsync` vào hàm `main` để cho phép gửi mail OTP chạy ngầm (giống cơ chế Queue delay của Laravel).
 
 ---
 
