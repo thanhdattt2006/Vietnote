@@ -1,57 +1,67 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, useLoginMutation, useRegisterMutation } from '../../hooks/useAuth';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Github } from 'lucide-react';
 import PasswordInput from '../../components/common/PasswordInput';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import logo from '../../assets/logo.png';
+import GoogleIcon from '../../components/common/GoogleIcon';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
 
-const GoogleIcon = ({ size = 18 }) => (
-  <svg
-    xmlns='http://www.w3.org/2000/svg'
-    width={size}
-    height={size}
-    viewBox='0 0 48 48'
-    style={{ display: 'inline-block', verticalAlign: 'middle' }}
-  >
-    <path
-      fill='#FFC107'
-      d='M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z'
-    />
-    <path
-      fill='#FF3D00'
-      d='M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z'
-    />
-    <path
-      fill='#4CAF50'
-      d='M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z'
-    />
-    <path
-      fill='#1976D2'
-      d='M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z'
-    />
-  </svg>
-);
 const AuthPage = () => {
   const { t } = useLanguage();
-  const { login, register, loginWithGoogle, loginWithGithub, isLoading } =
-    useAuth();
+  const { loginWithGoogle, loginWithGithub } = useAuth();
+  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation();
   const navigate = useNavigate();
 
   const [isLoginView, setIsLoginView] = useState(true);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('male');
-  const [errors, setErrors] = useState({});
+  // Validation schemas
+  const loginSchema = yup.object({
+    username: yup.string().required(t('usernameRequired') || 'Username is required'),
+    password: yup.string().required(t('passwordRequired') || 'Password is required'),
+  }).required();
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-    const result = await login(username, password);
+  const registerSchema = yup.object({
+    fullName: yup.string().required(t('fullNameRequired') || 'Full name is required'),
+    username: yup.string().required(t('usernameRequired') || 'Username is required'),
+    password: yup.string().required(t('passwordRequired') || 'Password is required').min(6, t('minLength', { min: 6 }) || 'Password must be at least 6 characters'),
+    age: yup.number().transform((value) => (isNaN(value) ? undefined : value)).nullable(),
+    gender: yup.string().required(),
+  }).required();
+
+  const {
+    register: registerLogin,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+    reset: resetLogin,
+    setValue: setLoginValue,
+    watch: watchLogin
+  } = useForm({
+    resolver: yupResolver(loginSchema),
+  });
+
+  const {
+    register: registerSignup,
+    handleSubmit: handleRegisterSubmit,
+    formState: { errors: registerErrors },
+    reset: resetSignup,
+    setValue: setSignupValue,
+    watch: watchSignup
+  } = useForm({
+    resolver: yupResolver(registerSchema),
+    defaultValues: {
+      gender: 'male'
+    }
+  });
+
+  const onSubmitLogin = async (data) => {
+    const result = await loginMutation.mutateAsync({ username: data.username, password: data.password });
     if (result.success) {
       navigate('/home');
     } else {
@@ -64,42 +74,32 @@ const AuthPage = () => {
     }
   };
 
-  const handleRegisterSubmit = async (e) => {
-    e.preventDefault();
-    if (password.length < 6) {
-      // --- SỬA: Dùng key 'minLength' ---
-      setErrors({ password: t('minLength', { min: 6 }) });
-      return;
-    }
-
-    const result = await register({
-      username,
-      password,
-      name: fullName,
-      age,
-      gender,
+  const onSubmitRegister = async (data) => {
+    const result = await registerMutation.mutateAsync({
+      username: data.username,
+      password: data.password,
+      name: data.fullName,
+      age: data.age,
+      gender: data.gender,
     });
 
     if (result.success) {
       navigate('/home');
     } else {
-      if (result.errors) {
-        const firstError = Object.values(result.errors)[0][0];
-        setConfirmDialog({
-          type: 'alert',
-          title: t('registerFailed'), // --- SỬA: Key chuẩn
-          message: firstError || result.message,
-          onConfirm: () => setConfirmDialog(null),
-        });
-      } else {
-        setConfirmDialog({
-          type: 'alert',
-          title: t('registerFailed'), // --- SỬA: Key chuẩn
-          message: result.message,
-          onConfirm: () => setConfirmDialog(null),
-        });
-      }
+      const message = result.errors ? Object.values(result.errors)[0][0] : result.message;
+      setConfirmDialog({
+        type: 'alert',
+        title: t('registerFailed'),
+        message: message,
+        onConfirm: () => setConfirmDialog(null),
+      });
     }
+  };
+
+  const switchView = () => {
+    setIsLoginView(!isLoginView);
+    resetLogin();
+    resetSignup();
   };
 
   return (
@@ -115,23 +115,23 @@ const AuthPage = () => {
         </div>
 
         {isLoginView ? (
-          <form onSubmit={handleLoginSubmit}>
+          <form onSubmit={handleLoginSubmit(onSubmitLogin)}>
             <div className='form-group'>
               <label className='form-label'>{t('username')}</label>
               <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className='form-input'
-                required
+                {...registerLogin('username')}
+                className={`form-input ${loginErrors.username ? 'error' : ''}`}
               />
+              {loginErrors.username && <span className='form-error'>{loginErrors.username.message}</span>}
             </div>
             <div className='form-group'>
               <label className='form-label'>{t('password')}</label>
               <PasswordInput
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className='form-input'
+                value={watchLogin('password') || ''}
+                onChange={(e) => setLoginValue('password', e.target.value)}
+                className={`form-input ${loginErrors.password ? 'error' : ''}`}
               />
+              {loginErrors.password && <span className='form-error'>{loginErrors.password.message}</span>}
               <div style={{ textAlign: 'right', marginTop: '0.5rem' }}>
                 <Link
                   to='/forgot-password'
@@ -150,79 +150,69 @@ const AuthPage = () => {
               <button
                 type='submit'
                 className='btn btn-primary btn-large w-full'
-                disabled={isLoading}
+                disabled={loginMutation.isPending}
               >
-                {isLoading ? t('isSending') : t('login')}
+                {loginMutation.isPending ? t('isSending') : t('login')}
               </button>
             </div>
           </form>
         ) : (
-          <form onSubmit={handleRegisterSubmit}>
+          <form onSubmit={handleRegisterSubmit(onSubmitRegister)}>
             <div className='form-group'>
               <label className='form-label'>{t('fullName')}</label>
               <input
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className='form-input'
-                required
+                {...registerSignup('fullName')}
+                className={`form-input ${registerErrors.fullName ? 'error' : ''}`}
               />
+              {registerErrors.fullName && <span className='form-error'>{registerErrors.fullName.message}</span>}
             </div>
             <div className='form-group'>
               <label className='form-label'>{t('username')}</label>
               <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className='form-input'
-                required
+                {...registerSignup('username')}
+                className={`form-input ${registerErrors.username ? 'error' : ''}`}
               />
+              {registerErrors.username && <span className='form-error'>{registerErrors.username.message}</span>}
             </div>
             <div className='form-group'>
               <label className='form-label'>{t('password')}</label>
               <PasswordInput
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={`form-input ${errors.password ? 'error' : ''}`}
+                value={watchSignup('password') || ''}
+                onChange={(e) => setSignupValue('password', e.target.value)}
+                className={`form-input ${registerErrors.password ? 'error' : ''}`}
               />
-              {errors.password && (
-                <span className='form-error'>{errors.password}</span>
-              )}
+              {registerErrors.password && <span className='form-error'>{registerErrors.password.message}</span>}
             </div>
             <div className='form-group'>
               <label className='form-label'>{t('age')}</label>
               <input
                 type='number'
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                className='form-input'
+                {...registerSignup('age')}
+                className={`form-input ${registerErrors.age ? 'error' : ''}`}
               />
+              {registerErrors.age && <span className='form-error'>{registerErrors.age.message}</span>}
             </div>
             <div className='form-group'>
               <label className='form-label'>{t('gender')}</label>
               <div className='gender-selector'>
                 <button
                   type='button'
-                  className={`gender-option ${
-                    gender === 'male' ? 'active' : ''
-                  }`}
-                  onClick={() => setGender('male')}
+                  className={`gender-option ${watchSignup('gender') === 'male' ? 'active' : ''}`}
+                  onClick={() => setSignupValue('gender', 'male')}
                 >
                   {t('male')}
                 </button>
                 <button
                   type='button'
-                  className={`gender-option ${
-                    gender === 'female' ? 'active' : ''
-                  }`}
-                  onClick={() => setGender('female')}
+                  className={`gender-option ${watchSignup('gender') === 'female' ? 'active' : ''}`}
+                  onClick={() => setSignupValue('gender', 'female')}
                 >
                   {t('female')}
                 </button>
                 <button
                   type='button'
-                  className={`gender-option ${
-                    gender === 'other' ? 'active' : ''
-                  }`}
-                  onClick={() => setGender('other')}
+                  className={`gender-option ${watchSignup('gender') === 'other' ? 'active' : ''}`}
+                  onClick={() => setSignupValue('gender', 'other')}
                 >
                   {t('other')}
                 </button>
@@ -232,9 +222,9 @@ const AuthPage = () => {
               <button
                 type='submit'
                 className='btn btn-primary btn-large w-full'
-                disabled={isLoading}
+                disabled={registerMutation.isPending}
               >
-                {isLoading ? t('isSending') : t('register')}
+                {registerMutation.isPending ? t('isSending') : t('register')}
               </button>
             </div>
           </form>
@@ -242,12 +232,7 @@ const AuthPage = () => {
 
         <div className='auth-toggle'>
           {isLoginView ? t('dontHaveAccount') : t('alreadyHaveAccount')}{' '}
-          <button
-            onClick={() => {
-              setIsLoginView(!isLoginView);
-              setErrors({});
-            }}
-          >
+          <button onClick={switchView}>
             {isLoginView ? t('register') : t('login')}
           </button>
         </div>

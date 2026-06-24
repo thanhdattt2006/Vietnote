@@ -77,4 +77,16 @@ const useAuthStore = create((set) => ({
   },
 }));
 
+// Lắng nghe sự kiện storage để đồng bộ state khi đăng xuất từ tab khác
+window.addEventListener('storage', (e) => {
+  if (e.key === 'access_token' && !e.newValue) {
+    useAuthStore.setState({ isAuthenticated: false, user: null });
+  } else if (e.key === 'access_token' && e.newValue) {
+    const user = localStorage.getItem('vietnote-user');
+    if (user) {
+      useAuthStore.setState({ isAuthenticated: true, user: JSON.parse(user) });
+    }
+  }
+});
+
 export default useAuthStore;
