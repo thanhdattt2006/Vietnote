@@ -1,37 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import noteApi from '../../api/noteApi';
+import React, { useState } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { Clock } from 'lucide-react';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import CustomPaginator from '../../components/common/CustomPaginator';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry';
+import { useTrashNotes, useRestoreNote, useForceDeleteNote } from '../../hooks/useNotes';
 
 const TrashPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
-  const [trashItems, setTrashItems] = useState([]);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
-  const fetchTrash = async () => {
-    try {
-      const data = await noteApi.getTrash();
-      setTrashItems(data);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTrash();
-  }, []);
+  const { data: trashItems = [], isLoading } = useTrashNotes();
+  const restoreNoteMutation = useRestoreNote();
+  const forceDeleteNoteMutation = useForceDeleteNote();
 
   const handleRestore = async (id) => {
     try {
-      await noteApi.restore(id);
-      fetchTrash();
+      await restoreNoteMutation.mutateAsync(id);
       setConfirmDialog({
         type: 'success',
         title: t('success'),
@@ -48,17 +33,13 @@ const TrashPage = () => {
       type: 'danger',
       title: t('deletePermanently'),
       message: t('deleteConfirm'),
-
-      // Logic async nhét thẳng vào đây
       onConfirm: async () => {
-        // 1. Dialog tự hiện Loading...
-        await noteApi.forceDelete(id); // Gọi API
-
-        // 2. Load lại list (vẫn đang loading trong dialog)
-        await fetchTrash();
-
-        // 3. Xong xuôi thì đóng dialog -> Loading tự tắt
-        setConfirmDialog(null);
+        try {
+          await forceDeleteNoteMutation.mutateAsync(id);
+          setConfirmDialog(null);
+        } catch (e) {
+          console.error(e);
+        }
       },
       onCancel: () => setConfirmDialog(null),
     });
@@ -82,13 +63,12 @@ const TrashPage = () => {
       </div>
       <div className='relative-container'>
         <LoadingOverlay isVisible={isLoading} />
-        {trashItems.length === 0 ? (
+        {trashItems.length === 0 && !isLoading ? (
           <div className='empty-state'>
             <div className='empty-icon'>🗑️</div>
             <h2>{t('trashEmpty')}</h2>
           </div>
         ) : (
-          /* --- SỬA LẠI ĐOẠN NÀY: DÙNG MASONRY --- */
           <ResponsiveMasonry
             columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3, 1200: 4 }}
           >
@@ -100,7 +80,6 @@ const TrashPage = () => {
                   style={{ width: '100%', marginBottom: '0' }}
                 >
                   <h3 className='note-title'>{item.title}</h3>
-                  {/* Render HTML content safely */}
                   <div
                     className='note-content'
                     dangerouslySetInnerHTML={{ __html: item.content }}
@@ -131,7 +110,6 @@ const TrashPage = () => {
               ))}
             </Masonry>
           </ResponsiveMasonry>
-          /* --- HẾT PHẦN SỬA --- */
         )}
       </div>
       {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
