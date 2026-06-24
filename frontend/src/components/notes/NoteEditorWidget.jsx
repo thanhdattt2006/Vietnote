@@ -35,8 +35,7 @@ const NoteEditorWidget = ({ onSave }) => {
           <Editor
             value={newNoteContent}
             onTextChange={(e) => setNewNoteContent(e.htmlValue)}
-            style={{ height: '200px' }}
-            className='prime-editor'
+            className='prime-editor h-[200px]'
           />
           <div className='editor-actions'>
             <button className='btn btn-primary bg-amber-400 hover:bg-amber-500 text-white px-4 py-2 rounded' onClick={handleSave}>

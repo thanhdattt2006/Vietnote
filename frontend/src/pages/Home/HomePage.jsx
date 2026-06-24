@@ -180,8 +180,7 @@ const HomePage = () => {
             <Editor
               value={editingContent}
               onTextChange={(e) => setEditingContent(e.htmlValue)}
-              style={{ height: '350px' }}
-              className='prime-editor-detail'
+              className='prime-editor-detail h-[350px]'
             />
           </div>
         </CustomModal>

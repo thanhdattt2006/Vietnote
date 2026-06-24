@@ -13,9 +13,8 @@ const NoteCard = ({ note, onSelect, onTogglePin, onDelete }) => {
 
   return (
     <div
-      className={`note-card ${note.isPinned ? 'is-pinned' : ''}`}
+      className={`note-card w-full mb-0 ${note.isPinned ? 'is-pinned' : ''}`}
       onClick={() => onSelect(note)}
-      style={{ marginBottom: '0', width: '100%' }}
     >
       <div className='note-card-actions'>
         <button

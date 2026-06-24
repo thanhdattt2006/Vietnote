@@ -76,8 +76,7 @@ const TrashPage = () => {
               {trashItems.map((item) => (
                 <div
                   key={item.id}
-                  className='note-card trash-card'
-                  style={{ width: '100%', marginBottom: '0' }}
+                  className='note-card trash-card w-full mb-0'
                 >
                   <h3 className='note-title'>{item.title}</h3>
                   <div
