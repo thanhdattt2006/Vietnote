@@ -1,4 +1,4 @@
-# 🚀 Vietnote: Fullstack Note-Taking Application (React + Laravel API)
+# 🚀 Vietnote: Fullstack Note-Taking Application (React + Spring Boot API)
 
 **Author:** Vo Cao Thanh Dat (Dave)  
 **Timeline:** 11/2025 – 12/2025  
@@ -16,13 +16,13 @@ Vietnote is a modern, high-performance note-taking application built on a **Deco
 
 | Component | Technology | Description & Purpose |
 | :--- | :--- | :--- |
-| **Backend API** | **Laravel 11, Sanctum** | Provides secure RESTful APIs utilizing the Repository/Service Pattern. |
-| **External Auth** | **Laravel Socialite** | Handles quick login flows via Google and GitHub accounts (OAuth2). |
-| **Email & Services** | **Resend (resend-laravel)** | Automatically sends notification emails and OTP verification codes. |
-| **File Storage** | **Local Storage (storage/app/public)** | Integrates local disk storage for saving file attachments securely. |
+| **Backend API** | **Spring Boot 3.x, Java 21** | Provides secure RESTful APIs utilizing the layered architecture (Controller/Service/Repository). |
+| **External Auth** | **Spring Security OAuth2** | Handles quick login flows via Google and GitHub accounts (OAuth2). |
+| **Email & Services** | **Spring Boot Mail (@Async)** | Automatically sends notification emails and OTP verification codes asynchronously without blocking response. |
+| **File Storage** | **Browser Image Compression** | Compresses image to under 1MB base64 on frontend to reduce payload, with max request size limited to 5MB on Backend. |
 | **Frontend UI** | **ReactJS 18, Vite 5.4** | Builds a highly responsive SPA (Single Page Application). |
 | **UI/UX & Styling** | **PrimeReact 10, PrimeFlex, Quill** | Component-based UI with built-in Dark Mode and Rich Text Editor (Quill) support. |
-| **Database** | **MySQL (Aiven/Render)** | The primary relational database for the system. |
+| **Database** | **MySQL (Spring Data JPA)** | The primary relational database for the system. |
 | **Deployment (DevOps)**| **Render (Docker), Vercel** | Automated CI/CD deployment for both the Backend API and Frontend Static Assets. |
 
 ---
@@ -41,7 +41,7 @@ Vietnote is a modern, high-performance note-taking application built on a **Deco
 - **UX Enhancements:** Added Multi-language support (English/Vietnamese via `i18next`) and fixed input focus loss bugs specific to the React lifecycle.
 
 ### 3. Security & Authentication
-- **Token-based Auth:** Uses Laravel Sanctum (Bearer Token) to protect all API endpoints.
+- **Token-based Auth:** Uses JWT (JSON Web Token) with Spring Security to protect all API endpoints.
 - **Pro Password Reset Flow:** Implemented a 3-step **OTP Multi-step Form** (Enter Email -> Verify OTP -> Change Password) directly on the UI, improving user experience and avoiding context switching caused by link redirects.
 - **Account Management:** Features to Change Password (requires old password) and Permanently Delete Account (requires strict confirmation).
 - **Role-Based Access Control (RBAC):** Built Custom Middleware on the Backend to completely block unauthorized access from standard users to the Admin area.
@@ -52,12 +52,11 @@ Vietnote is a modern, high-performance note-taking application built on a **Deco
 
 ```text
 Vietnote/
-├── backend/                  # Laravel 11 API Server
-│   ├── app/                  # Controllers, Models, Middleware, Services
-│   ├── config/               # Sanctum, CORS, Auth, Resend Configurations
-│   ├── database/             # Migrations and Seeders
-│   ├── routes/               # Contains API endpoints (api.php)
-│   └── composer.json
+├── backend-spring/           # Spring Boot 3.x API Server
+│   ├── src/main/java/        # Controllers, Entities, Repositories, Services, Security
+│   ├── src/main/resources/   # application.yml (Database, Mail, OAuth2 configs)
+│   ├── src/test/             # Comprehensive Unit Tests for Core Services
+│   └── pom.xml               # Maven Dependencies
 │
 ├── frontend/                 # React 18 + Vite SPA Client
 │   ├── src/
@@ -76,16 +75,16 @@ Vietnote/
 
 ## 🚀 Local Setup Instructions
 
-### 1. Backend Setup (Laravel)
+### 1. Backend Setup (Spring Boot)
 ```bash
-cd backend
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate
-php artisan serve
+cd backend-spring
+# Chạy dự án bằng Maven Wrapper
+./mvnw spring-boot:run
+# Hoặc build file jar
+./mvnw clean package
+java -jar target/backend-spring-0.0.1-SNAPSHOT.jar
 ```
-*(Note: You must configure the environment variables for Database, Mail (Resend), AWS S3, and Socialite (Google/Github) in your `.env` file before running).*
+*(Note: You must configure the environment variables for Database, Mail, and OAuth2 (Google/Github) in `application.yml` before running).*
 
 ### 2. Frontend Setup (React)
 ```bash

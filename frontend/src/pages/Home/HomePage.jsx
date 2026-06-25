@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
+import imageCompression from 'browser-image-compression';
 import { X } from 'lucide-react';
 import { Editor } from 'primereact/editor';
 import CustomModal from '../../components/common/CustomModal';
@@ -50,6 +51,62 @@ const HomePage = () => {
   const [editingTitle, setEditingTitle] = useState('');
   const [editingContent, setEditingContent] = useState('');
   const [confirmDialog, setConfirmDialog] = useState(null);
+  const detailEditorRef = useRef(null);
+
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert(t('errorImageSize') || 'Vui lòng chọn ảnh dưới 5MB!');
+        return;
+      }
+
+      try {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        const compressedFile = await imageCompression(file, options);
+
+        const reader = new FileReader();
+        reader.readAsDataURL(compressedFile);
+        reader.onload = () => {
+          if (detailEditorRef.current) {
+            const quill = detailEditorRef.current.getQuill();
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', reader.result);
+            quill.setSelection(range.index + 1);
+          }
+        };
+      } catch (error) {
+        console.error('Lỗi nén ảnh:', error);
+      }
+    };
+  };
+
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          ['image', 'code-block'],
+        ],
+        handlers: {
+          image: imageHandler,
+        },
+      },
+    }),
+    []
+  );
 
   const handleSaveNote = async (newNote) => {
     try {
@@ -178,8 +235,10 @@ const HomePage = () => {
               onChange={(e) => setEditingTitle(e.target.value)}
             />
             <Editor
+              ref={detailEditorRef}
               value={editingContent}
               onTextChange={(e) => setEditingContent(e.htmlValue)}
+              modules={modules}
               className='prime-editor-detail h-[350px]'
             />
           </div>
