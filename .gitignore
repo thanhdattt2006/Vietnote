@@ -2,5 +2,6 @@
 node_modules/
 dist/
 AGENTS.md
-TODO.md
+FRONT_TODO.md
+BACK_TODO.md
 backend-spring/src/main/resources/application.yml
