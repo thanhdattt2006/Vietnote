@@ -3,6 +3,7 @@ package com.example.backend_spring.controller;
 import com.example.backend_spring.entity.User;
 import com.example.backend_spring.repository.NoteRepository;
 import com.example.backend_spring.repository.UserRepository;
+import com.example.backend_spring.service.EmailService;
 import com.example.backend_spring.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ public class AdminController {
     private final UserRepository userRepository;
     private final NoteRepository noteRepository;
     private final FeedbackService feedbackService;
+    private final EmailService emailService;
 
     /**
      * GET /api/admin/stats
@@ -176,10 +178,15 @@ public class AdminController {
                     .body(Map.of("message", "subject và content không được để trống"));
         }
 
-        // TODO Phase 6: Implement async broadcast email to all users
-        long userCount = userRepository.count();
+        // Lấy toàn bộ user và gửi email @Async cho từng người
+        List<User> allUsers = userRepository.findAll();
+        for (User user : allUsers) {
+            emailService.sendBroadcastEmail(user.getUsername(), subject, content);
+        }
+
         return ResponseEntity.ok(Map.of(
-            "message", "Đã gửi " + userCount + " email vào hàng đợi. Worker sẽ xử lý."
+            "message", "Đã gửi " + allUsers.size() + " email vào hàng đợi. Worker sẽ xử lý."
         ));
     }
 }
+

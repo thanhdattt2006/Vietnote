@@ -78,6 +78,30 @@ public class EmailService {
         }
     }
 
+    /**
+     * Gửi email broadcast bất đồng bộ (Admin gửi hàng loạt).
+     * Tương đương: Mail::to($user->username)->queue(new BroadcastMail($subject, $content))
+     *
+     * @Async: Mỗi email gửi trong thread riêng — không block Admin request.
+     * AdminController sẽ gọi method này trong vòng lặp cho từng user.
+     */
+    @Async
+    public void sendBroadcastEmail(String toEmail, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromAddress, fromName);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(buildBroadcastEmailHtml(subject, content), true);
+
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.err.println("[EmailService] Failed to send broadcast email to " + toEmail + ": " + e.getMessage());
+        }
+    }
+
     // ===== HTML TEMPLATES (migrate từ Blade views) =====
 
     /**
@@ -203,5 +227,67 @@ public class EmailService {
             </body>
             </html>
             """.formatted(name != null ? name : "bạn");
+    }
+
+    /**
+     * HTML template cho broadcast email — Admin gửi thông báo hàng loạt.
+     * Sử dụng design system giống OTP/ThankYou email.
+     */
+    private String buildBroadcastEmailHtml(String subject, String content) {
+        return """
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>%s - Vietnote</title>
+              <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                       background: #0a0a0f; padding: 40px 20px; min-height: 100vh; }
+                .container { max-width: 650px; margin: 0 auto;
+                             background: linear-gradient(145deg, #1A1A24 0%%, #2A2A38 100%%);
+                             border-radius: 20px; overflow: hidden;
+                             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+                             border: 1px solid rgba(74,144,226,0.2); }
+                .header { background: linear-gradient(135deg, #4A90E2 0%%, #357ABD 50%%, #2A5F8F 100%%);
+                          padding: 50px 30px; text-align: center; }
+                .logo { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+                .header h1 { color: #fff; font-size: 28px; font-weight: 700; }
+                .header p { color: rgba(255,255,255,0.9); font-size: 16px; margin-top: 8px; }
+                .content { padding: 40px 35px; color: #e0e0e0; line-height: 1.8; }
+                .content h2 { color: #4A90E2; font-size: 22px; margin-bottom: 20px; }
+                .content p { color: #b8b8b8; margin-bottom: 16px; font-size: 15px; }
+                .message-box { background: rgba(74,144,226,0.08);
+                               border: 1px solid rgba(74,144,226,0.2); border-radius: 12px;
+                               padding: 25px; margin: 20px 0; }
+                .message-box p { color: #d0d0d0; font-size: 15px; line-height: 1.8; }
+                .footer { background: rgba(26,26,36,0.5); padding: 30px; text-align: center;
+                          border-top: 1px solid rgba(74,144,226,0.1); }
+                .footer p { color: #808080; font-size: 13px; margin-bottom: 8px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <div class="logo">📢 Vietnote</div>
+                  <h1>Thông Báo</h1>
+                  <p>Tin nhắn từ đội ngũ quản trị</p>
+                </div>
+                <div class="content">
+                  <h2>%s</h2>
+                  <div class="message-box">
+                    <p>%s</p>
+                  </div>
+                </div>
+                <div class="footer">
+                  <p><strong>Vietnote</strong></p>
+                  <p>Nền tảng ghi chú thông minh cho mọi người</p>
+                  <p style="margin-top:8px; font-size:12px;">© Vietnote 1.0.0</p>
+                </div>
+              </div>
+            </body>
+            </html>
+            """.formatted(subject, subject, content);
     }
 }
