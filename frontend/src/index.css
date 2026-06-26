@@ -101,7 +101,7 @@ body {
   width: 100%;
 }
 .text-danger {
-  color: var(--danger) !important;
+  color: var(--danger);
 }
 .btn-icon-only {
   background: none;
@@ -481,9 +481,9 @@ body {
   border-radius: 0 3px 3px 0;
 }
 
-.logout-btn:hover {
-  background: rgba(234, 67, 53, 0.1) !important;
-  color: var(--danger) !important;
+.navbar .menu-item.logout-btn:hover {
+  background: rgba(234, 67, 53, 0.1);
+  color: var(--danger);
 }
 
 .menu-icon-wrapper {
@@ -674,22 +674,24 @@ body {
 }
 
 .note-content img {
-  /* 1. Đảm bảo ảnh không bao giờ rộng hơn cái thẻ chứa nó */
+  /* Đảm bảo ảnh không bao giờ rộng hơn cái thẻ chứa nó */
   max-width: 100%;
-  width: 100%; /* Ép ảnh luôn chiếm hết chiều rộng của thẻ note */
+  width: 100%;
 
-  /* 2. Giới hạn chiều cao lại, không cho nó dài ngoằng nữa */
-  max-height: 250px; /* Bạn có thể tăng giảm số này tùy ý, 200px-300px là đẹp */
+  /* CLS Fix (Phase 7): Đặt aspect-ratio + min-height cố định
+     để trình duyệt reserve space TRƯỚC khi ảnh load xong,
+     tránh layout shift (giật cục) khi dùng Masonry */
+  aspect-ratio: 16 / 9;
+  min-height: 120px;
+  max-height: 250px;
 
-  /* 3. CỰC KỲ QUAN TRỌNG: Giữ tỷ lệ ảnh không bị méo */
-  height: auto; /* Để trình duyệt tự tính chiều cao dựa trên chiều rộng */
-  object-fit: cover; /* "Cắt" ảnh để lấp đầy khung mà không bị méo. */
-  /* Nếu muốn hiển thị toàn bộ ảnh mà chấp nhận có khoảng trắng thì dùng: object-fit: contain; */
+  /* Giữ tỷ lệ ảnh không bị méo */
+  object-fit: cover;
 
-  /* 4. Làm đẹp thêm tí */
-  border-radius: 8px; /* Bo góc cho mềm mại */
-  display: block; /* Để căn lề dễ hơn */
-  margin: 10px auto; /* Căn giữa ảnh và tạo khoảng cách trên dưới */
+  /* Làm đẹp */
+  border-radius: 8px;
+  display: block;
+  margin: 10px auto;
 }
 
 .note-footer {
@@ -799,21 +801,22 @@ body {
   overflow-y: auto;
 }
 
-.note-detail-title-input {
+/* Phase 7: Giảm !important bằng cách tăng specificity selector */
+.note-detail-content-wrapper .note-detail-title-input {
   width: 100%;
-  font-size: 1.75rem !important;
-  font-weight: 700 !important;
-  font-family: 'Inter', sans-serif !important;
-  color: var(--text-primary) !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 0 1rem 0 !important;
-  border-bottom: 1px solid transparent !important;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0 0 1rem 0;
+  border-bottom: 1px solid transparent;
 }
-.note-detail-title-input:focus {
-  box-shadow: none !important;
-  border-bottom: 1px solid var(--accent) !important;
+.note-detail-content-wrapper .note-detail-title-input:focus {
+  box-shadow: none;
+  border-bottom: 1px solid var(--accent);
   outline: none;
 }
 
@@ -949,8 +952,8 @@ body {
   align-items: center;
 }
 
-.danger-zone {
-  border-color: var(--danger) !important;
+.setting-section.danger-zone {
+  border-color: var(--danger);
 }
 
 .danger-zone .setting-title {

@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import imageCompression from 'browser-image-compression';
-import { X } from 'lucide-react';
-import { Editor } from 'primereact/editor';
-import CustomModal from '../../components/common/CustomModal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import { toast } from 'react-toastify';
 import CustomPaginator from '../../components/common/CustomPaginator';
 import LoadingOverlay from '../../components/common/LoadingOverlay';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 import NoteSearchBar from '../../components/notes/NoteSearchBar';
 import NoteEditorWidget from '../../components/notes/NoteEditorWidget';
 import NoteGrid from '../../components/notes/NoteGrid';
+import NoteDetailModal from '../../components/notes/NoteDetailModal';
 import {
   useNotes,
   useCreateNote,
@@ -18,6 +16,16 @@ import {
   useTogglePinNote,
 } from '../../hooks/useNotes';
 
+/**
+ * HomePage — Trang chính hiển thị danh sách Note.
+ *
+ * Phase 7 Refactor:
+ *   - [Decomposition] Tách Modal chỉnh sửa Note ra NoteDetailModal component
+ *   - [DRY] Loại bỏ imageHandler duplicate (đã gom vào useImageUpload hook)
+ *   - [Inline Styles] Xóa toàn bộ style={{}} trên nút Save → dùng Tailwind classes
+ *   - [Error] Thay alert() bằng toast (tuân thủ AGENTS.md)
+ *   - Giữ nguyên behavior: Pagination, Search, CRUD mutations, ConfirmDialog
+ */
 const HomePage = () => {
   const { t } = useLanguage();
 
@@ -51,68 +59,12 @@ const HomePage = () => {
   const [editingTitle, setEditingTitle] = useState('');
   const [editingContent, setEditingContent] = useState('');
   const [confirmDialog, setConfirmDialog] = useState(null);
-  const detailEditorRef = useRef(null);
-
-  const imageHandler = () => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
-
-    input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-
-      if (file.size > 5 * 1024 * 1024) {
-        alert(t('errorImageSize') || 'Vui lòng chọn ảnh dưới 5MB!');
-        return;
-      }
-
-      try {
-        const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-        };
-        const compressedFile = await imageCompression(file, options);
-
-        const reader = new FileReader();
-        reader.readAsDataURL(compressedFile);
-        reader.onload = () => {
-          if (detailEditorRef.current) {
-            const quill = detailEditorRef.current.getQuill();
-            const range = quill.getSelection(true);
-            quill.insertEmbed(range.index, 'image', reader.result);
-            quill.setSelection(range.index + 1);
-          }
-        };
-      } catch (error) {
-        console.error('Lỗi nén ảnh:', error);
-      }
-    };
-  };
-
-  const modules = useMemo(
-    () => ({
-      toolbar: {
-        container: [
-          [{ header: [1, 2, false] }],
-          ['bold', 'italic', 'underline'],
-          ['image', 'code-block'],
-        ],
-        handlers: {
-          image: imageHandler,
-        },
-      },
-    }),
-    []
-  );
 
   const handleSaveNote = async (newNote) => {
     try {
       await createNoteMutation.mutateAsync(newNote);
     } catch (error) {
-      alert(t('error'));
+      toast.error(t('error') || 'Có lỗi xảy ra!');
     }
   };
 
@@ -199,51 +151,15 @@ const HomePage = () => {
         )}
       </div>
 
-      {selectedNote && (
-        <CustomModal
-          isOpen={!!selectedNote}
-          onClose={() => setSelectedNote(null)}
-          showHeader={false}
-          className='note-detail-dialog-custom'
-        >
-          <div className='note-detail-header-custom'>
-            <div className='note-detail-actions'>
-              <button
-                className='note-action-btn note-action-close'
-                onClick={handleUpdateNote}
-                style={{
-                  marginRight: '10px',
-                  width: 'auto',
-                  padding: '0 15px',
-                  borderRadius: '8px',
-                }}
-              >
-                {t('save')}
-              </button>
-              <button
-                className='note-action-btn note-action-close'
-                onClick={() => setSelectedNote(null)}
-              >
-                <X size={22} />
-              </button>
-            </div>
-          </div>
-          <div className='note-detail-content-wrapper'>
-            <input
-              className='note-detail-title-input'
-              value={editingTitle}
-              onChange={(e) => setEditingTitle(e.target.value)}
-            />
-            <Editor
-              ref={detailEditorRef}
-              value={editingContent}
-              onTextChange={(e) => setEditingContent(e.htmlValue)}
-              modules={modules}
-              className='prime-editor-detail h-[350px]'
-            />
-          </div>
-        </CustomModal>
-      )}
+      <NoteDetailModal
+        note={selectedNote}
+        editingTitle={editingTitle}
+        setEditingTitle={setEditingTitle}
+        editingContent={editingContent}
+        setEditingContent={setEditingContent}
+        onSave={handleUpdateNote}
+        onClose={() => setSelectedNote(null)}
+      />
       
       {confirmDialog && <ConfirmDialog isOpen={true} {...confirmDialog} />}
     </div>
